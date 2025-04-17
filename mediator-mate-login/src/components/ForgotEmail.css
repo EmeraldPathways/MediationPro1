@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap'); /* Added missing font import */
+@import './Login.css'; /* Import Login styles for shared elements like header */
+
+.forgot-email-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #e8ecd3;
+  }
+  
+  .forgot-email-form {
+    display: flex;
+    flex-direction: column;
+    width: 400px; /* Adjust width as needed */
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  }
+  
+  .forgot-email-form h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 2px; /* Reduced space below heading */
+  }
+  
+  .forgot-email-form label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    /* Removed incorrect margin-bottom */
+    color: #202124; /* Dark gray text */
+  }
+  
+  .forgot-email-form input {
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .forgot-email-button {
+    background-color: #00c0ce;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 20px; /* Added space below button */
+  }
+  
+  .forgot-email-button:hover {
+    background-color: #00a8b5; /* Darker shade for hover */
+  }
+  
+  /* Add a subtle focus style to inputs */
+  .forgot-email-form input:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 1px #1a73e8;
+  }
+
+  .back-to-login-link {
+    text-align: center; /* Center the link text */
+    display: block; /* Ensure text-align works */
+    margin-top: 15px; /* Add some space above the link */
+  }
