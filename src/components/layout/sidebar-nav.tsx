@@ -13,7 +13,9 @@ import {
   Settings,
   HardDrive,
   Mail,
-  FileOutput, // Import FileOutput icon
+  FileOutput,
+  Menu,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -68,7 +70,7 @@ const navItems: NavItem[] = [
     icon: HardDrive,
   },
   {
-    title: "Templates", // Add Templates link
+    title: "Templates",
     href: "/templates",
     icon: FileOutput,
   },
@@ -89,55 +91,125 @@ export function SidebarNav() {
   const isMobile = useIsMobile();
   const isCollapsed = isMobile;
   const [prevPath, setPrevPath] = useState(location.pathname);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Auto collapse sidebar on navigation for mobile
   useEffect(() => {
     if (isMobile && location.pathname !== prevPath) {
       setPrevPath(location.pathname);
+      setMobileMenuOpen(false);
     }
   }, [location.pathname, isMobile, prevPath]);
 
+  // Close mobile menu when switching to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileMenuOpen(false);
+    }
+  }, [isMobile]);
+
   return (
-    <div className="relative">
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-20 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out",
-          isCollapsed ? "w-16" : "w-64"
-        )}
-      >
-        <div className="flex h-16 items-center justify-between px-4">
-          <div className={cn("flex items-center", isCollapsed && "justify-center w-full")}>
-            {!isCollapsed && (
-              <h1 className="text-xl font-bold text-mediator-700">Andrew Rooney Legal</h1>
-            )}
-            {isCollapsed && (
-              <span className="text-2xl font-bold text-mediator-700">AR</span>
-            )}
+    <>
+      {/* Regular sidebar - hidden on mobile when menu is not open */}
+      <div className="relative">
+        <div
+          className={cn(
+            "fixed inset-y-0 left-0 z-20 flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 ease-in-out",
+            isCollapsed ? "w-16" : "w-64",
+            isMobile ? "hidden" : "block"
+          )}
+        >
+          <div className="flex h-16 items-center justify-between px-4">
+            <div className={cn("flex items-center", isCollapsed && "justify-center w-full")}>
+              {!isCollapsed && (
+                <h1 className="text-xl font-bold text-mediator-700">Andrew Rooney Legal</h1>
+              )}
+              {isCollapsed && (
+                <span className="text-2xl font-bold text-mediator-700">AR</span>
+              )}
+            </div>
+            <div className="w-8" /> {/* Spacer to maintain layout */}
           </div>
-          <div className="w-8" /> {/* Spacer to maintain layout */}
+          <Separator />
+          <div className="flex-1 overflow-auto py-2">
+            <nav className="grid gap-1 px-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-base transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    location.pathname === item.href
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground",
+                    isCollapsed && "justify-center px-0"
+                  )}
+                >
+                  <item.icon className={cn("h-5 w-5", isCollapsed && "h-6 w-6")} />
+                  {!isCollapsed && <span>{item.title}</span>}
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
-        <Separator />
-        <div className="flex-1 overflow-auto py-2">
-          <nav className="grid gap-1 px-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-base transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  location.pathname === item.href
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground",
-                  isCollapsed && "justify-center px-0"
-                )}
-              >
-                <item.icon className={cn("h-5 w-5", isCollapsed && "h-6 w-6")} />
-                {!isCollapsed && <span>{item.title}</span>}
-              </Link>
-            ))}
-          </nav>
-        </div>
+
+        {/* Mobile hamburger button - moved to top right */}
+        {isMobile && (
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="fixed top-4 right-4 z-30 p-3 rounded-md bg-mediator-600 text-white shadow-lg hover:bg-mediator-700 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
+        )}
       </div>
-    </div>
+
+      {/* Mobile menu overlay */}
+      {isMobile && (
+        <div 
+          className={`fixed inset-0 bg-background z-50 transition-transform duration-300 ease-in-out ${
+            mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex flex-col h-full">
+            {/* Header with app name and close button */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h1 className="text-xl font-bold text-mediator-700">Andrew Rooney Legal</h1>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+                aria-label="Close menu"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Mobile navigation items - reduced vertical spacing */}
+            <nav className="flex-1 overflow-y-auto p-4">
+              <ul className="space-y-1">
+                {navItems.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-4 py-2 px-4 rounded-lg text-lg transition-all",
+                        location.pathname === item.href
+                          ? "bg-mediator-50 text-mediator-700 font-medium"
+                          : "text-gray-700 hover:bg-gray-100"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

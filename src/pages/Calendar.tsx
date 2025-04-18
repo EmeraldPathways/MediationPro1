@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/layout/layout";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Calendar as CalendarIcon, Phone, Video, Users } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Define the Event type for better type checking
 interface Event {
@@ -64,6 +64,7 @@ const CalendarPage = () => {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   // Check for new session data from location state
   useEffect(() => {
@@ -145,8 +146,11 @@ const CalendarPage = () => {
         {dayEvents.length > 0 && (
           <div className="mt-1">
             {dayEvents.map(event => (
-              <div key={event.id} className="text-xs bg-blue-100 text-blue-800 rounded px-1 py-0.5 truncate mb-0.5">
-                {formatTime(event.date)} {event.title}
+              <div 
+                key={event.id} 
+                className={`${isMobile ? 'text-[0.6rem]' : 'text-xs'} bg-blue-100 text-blue-800 rounded px-1 py-0.5 truncate mb-0.5`}
+              >
+                {isMobile ? '' : `${formatTime(event.date)} `}{event.title}
               </div>
             ))}
           </div>
@@ -157,31 +161,29 @@ const CalendarPage = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="flex flex-col h-full space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Calendar</h1>
-            <p className="text-muted-foreground">
+            <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Calendar</h1>
+            <p className="text-muted-foreground text-sm">
               Schedule and manage your mediation sessions.
             </p>
           </div>
           <Button 
-            className="flex gap-2"
+            size={isMobile ? "sm" : "default"}
+            className="flex gap-2 self-start"
             onClick={() => navigate("/calendar/new")}
           >
-            <Plus className="h-4 w-4" />
-            Schedule Session
+            <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+            {isMobile ? "Add Session" : "Schedule Session"}
           </Button>
         </div>
-
-        <div className="flex justify-end mt-2">
-        </div>
         
-        <div className="grid gap-6 md:grid-cols-12 h-[calc(100vh-200px)]">
+        <div className="grid gap-4 md:grid-cols-12 h-[calc(100vh-200px)]">
           <Card className="md:col-span-8 h-full overflow-hidden flex flex-col">
-            <CardHeader className="pb-2">
-              <CardTitle>Calendar</CardTitle>
-              <CardDescription>View and manage your schedule</CardDescription>
+            <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-2"}`}>
+              <CardTitle className={isMobile ? "text-base" : ""}>Calendar</CardTitle>
+              <CardDescription className={isMobile ? "text-xs" : ""}>View and manage your schedule</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 overflow-auto p-0">
               <CalendarComponent
@@ -190,18 +192,17 @@ const CalendarPage = () => {
                 onSelect={(selectedDate) => {
                   if (selectedDate) {
                     setDate(selectedDate);
-                    const isoDate = selectedDate.toISOString().split('T')[0];
-                    navigate(`/calendar/new?date=${isoDate}`);
+                    navigate(`/calendar/new?date=${selectedDate.toISOString().split('T')[0]}`);
                   }
                 }}
                 className="w-full h-full pointer-events-auto"
                 classNames={{
                   months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                  month: "space-y-4 w-full",
+                  month: `space-y-4 w-full ${isMobile ? 'text-sm' : ''}`,
                   table: "w-full border-collapse",
                   head_row: "flex w-full",
                   row: "flex w-full mt-2",
-                  cell: "w-full p-1 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 border border-muted", // Removed h-24
+                  cell: `w-full p-${isMobile ? '0.5' : '1'} relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 border border-muted`,
                   day: "h-full w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/50 rounded-md",
                   day_today: "bg-accent text-accent-foreground",
                   day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
@@ -212,7 +213,7 @@ const CalendarPage = () => {
                 }}
                 components={{
                   Day: ({ date: dayDate, ...props }) => (
-                    <button {...props} className="h-full w-full p-1 overflow-hidden">
+                    <button {...props} className={`h-full w-full ${isMobile ? 'p-0.5' : 'p-1'} overflow-hidden`}>
                       {renderDay(dayDate)}
                     </button>
                   ),
@@ -222,64 +223,80 @@ const CalendarPage = () => {
           </Card>
           
           <Card className="md:col-span-4 h-full flex flex-col">
-            <CardHeader>
-              <CardTitle>
+            <CardHeader className={isMobile ? "px-3 py-2" : ""}>
+              <CardTitle className={isMobile ? "text-base" : ""}>
                 {date ? date.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
+                  weekday: isMobile ? 'short' : 'long', 
+                  month: isMobile ? 'short' : 'long', 
                   day: 'numeric' 
                 }) : 'Select a date'}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className={isMobile ? "text-xs" : ""}>
                 {selectedDateEvents.length 
                   ? `${selectedDateEvents.length} sessions scheduled`
                   : 'No sessions scheduled'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 overflow-auto">
-              <div className="space-y-4">
+            <CardContent className={`flex-1 overflow-auto ${isMobile ? "p-3" : ""}`}>
+              <div className="space-y-3">
                 {selectedDateEvents.length > 0 ? (
                   selectedDateEvents.map((event) => (
                     <div
                       key={event.id}
-                      className="rounded-lg border p-3 hover:bg-muted/50 cursor-pointer transition-colors"
+                      className={`rounded-lg border ${isMobile ? 'p-2' : 'p-3'} hover:bg-muted/50 cursor-pointer transition-colors`}
                     >
                       <div className="flex items-center gap-2">
                         {getSessionTypeIcon(event.sessionType)}
-                        <div className="font-medium">{event.title}</div>
+                        <div className={`font-medium ${isMobile ? "text-sm" : ""}`}>{event.title}</div>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground mt-1`}>
                         {formatTime(event.date)} - {formatTime(event.endTime)}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground mt-1`}>
                         {event.location}
                       </div>
-                      {event.caseFileNumber && (
-                        <div className="text-sm mt-1 flex gap-2">
-                          <span className="font-medium">Case #:</span>
-                          <span>{event.caseFileNumber}</span>
-                        </div>
-                      )}
-                      {event.sessionType && (
-                        <div className="text-sm mt-1 flex gap-2">
-                          <span className="font-medium">Type:</span>
-                          <span className="flex items-center gap-1">
+                      
+                      {/* Show case file number and session type only on desktop or if mobile, condense them */}
+                      {isMobile ? (
+                        <div className="text-xs mt-1 flex items-center justify-between">
+                          {event.caseFileNumber && (
+                            <span>Case #{event.caseFileNumber}</span>
+                          )}
+                          <span className="flex items-center gap-1 text-muted-foreground">
                             {getSessionTypeIcon(event.sessionType)}
                             {event.sessionType}
                           </span>
                         </div>
+                      ) : (
+                        <>
+                          {event.caseFileNumber && (
+                            <div className="text-sm mt-1 flex gap-2">
+                              <span className="font-medium">Case #:</span>
+                              <span>{event.caseFileNumber}</span>
+                            </div>
+                          )}
+                          {event.sessionType && (
+                            <div className="text-sm mt-1 flex gap-2">
+                              <span className="font-medium">Type:</span>
+                              <span className="flex items-center gap-1">
+                                {getSessionTypeIcon(event.sessionType)}
+                                {event.sessionType}
+                              </span>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-6 text-muted-foreground">
-                    <p>No events scheduled for this date.</p>
+                    <p className={isMobile ? "text-sm" : ""}>No events scheduled for this date.</p>
                     <Button 
                       variant="link" 
-                      className="mt-2"
+                      className={`mt-2 ${isMobile ? "text-sm" : ""}`}
                       onClick={() => navigate("/calendar/new")}
                     >
-                      + Add new session
+                      {isMobile ? "Add session" : "+ Add new session"}
                     </Button>
                   </div>
                 )}

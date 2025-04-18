@@ -1,10 +1,11 @@
-
 import { Layout } from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FileOutput, Search, Plus, Clock, Filter, Download } from "lucide-react";
+import { FileOutput, Search, Plus, Clock, Filter, Download, FileText, Files, BookText, FolderClosed, Clipboard, ClipboardList } from "lucide-react";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mock data for document templates
 const allTemplates = [
@@ -54,7 +55,8 @@ const allTemplates = [
 
 const TemplatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentCategory, setCurrentCategory] = useState("all");
+  const [activeTab, setActiveTab] = useState("all");
+  const isMobile = useIsMobile();
 
   // Format date in a readable way
   const formatDate = (dateString: string) => {
@@ -79,117 +81,208 @@ const TemplatesPage = () => {
       template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       template.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = currentCategory === "all" || template.category === currentCategory;
+    const matchesCategory = activeTab === "all" || template.category === activeTab;
     
     return matchesSearch && matchesCategory;
   });
 
-  // Categories for filter tabs
-  const categories = [
-    { value: "all", label: "All Templates" },
-    { value: "agreement", label: "Agreements" },
-    { value: "intake", label: "Intake Forms" },
-    { value: "confidentiality", label: "Confidentiality" },
-    { value: "process", label: "Process" },
-    { value: "worksheet", label: "Worksheets" },
-  ];
+  // Get template count by category
+  const agreementCount = allTemplates.filter(t => t.category === "agreement").length;
+  const intakeCount = allTemplates.filter(t => t.category === "intake").length;
+  const processCount = allTemplates.filter(t => t.category === "process").length;
+
+  // Get tab title based on active tab
+  const getTabTitle = () => {
+    switch(activeTab) {
+      case "agreement": return "Agreement Templates";
+      case "intake": return "Intake Form Templates";
+      case "confidentiality": return "Confidentiality Documents";
+      case "process": return "Process Templates";
+      case "worksheet": return "Worksheet Templates";
+      default: return "All Templates";
+    }
+  };
 
   return (
     <Layout>
-      <div className="flex flex-col space-y-6">
-        <div className="flex justify-between items-center">
+      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Templates</h1>
-            <p className="text-muted-foreground">
-              Document templates for your mediation process.
+            <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Templates</h1>
+            <p className="text-muted-foreground text-sm">
+              Document templates for your mediation process
             </p>
           </div>
-          <Button className="flex gap-2">
-            <Plus className="h-4 w-4" />
-            New Template
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size={isMobile ? "sm" : "default"}
+              className="flex items-center gap-2"
+            >
+              <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+              New Template
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
+              <CardTitle className="text-sm font-medium">Agreement Templates</CardTitle>
+            </CardHeader>
+            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
+              <div className="flex items-center justify-between">
+                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{agreementCount}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setActiveTab("agreement")}
+                >View</Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
+              <CardTitle className="text-sm font-medium">Intake Forms</CardTitle>
+            </CardHeader>
+            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
+              <div className="flex items-center justify-between">
+                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{intakeCount}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setActiveTab("intake")}
+                >View</Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
+              <CardTitle className="text-sm font-medium">Process Templates</CardTitle>
+            </CardHeader>
+            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
+              <div className="flex items-center justify-between">
+                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{processCount}</div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setActiveTab("process")}
+                >View</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <CardTitle>Document Templates</CardTitle>
-                <CardDescription>Use and manage document templates</CardDescription>
-              </div>
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search templates..."
-                  className="w-full pl-8"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+        <Card className="h-[calc(100vh-380px)] flex flex-col overflow-hidden">
+          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
+            <div className="flex justify-between items-center">
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className={`grid grid-cols-6 ${isMobile ? "w-full text-xs" : "w-[600px]"}`}>
+                  <TabsTrigger value="all" className="flex items-center gap-1">
+                    <Files className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    All
+                  </TabsTrigger>
+                  <TabsTrigger value="agreement" className="flex items-center gap-1">
+                    <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Agreements
+                  </TabsTrigger>
+                  <TabsTrigger value="intake" className="flex items-center gap-1">
+                    <ClipboardList className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Intake
+                  </TabsTrigger>
+                  <TabsTrigger value="confidentiality" className="flex items-center gap-1">
+                    <BookText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Confidential
+                  </TabsTrigger>
+                  <TabsTrigger value="process" className="flex items-center gap-1">
+                    <Clipboard className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Process
+                  </TabsTrigger>
+                  <TabsTrigger value="worksheet" className="flex items-center gap-1">
+                    <FolderClosed className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Worksheets
+                  </TabsTrigger>
+                </TabsList>
+                
+                <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
+                  <CardTitle className={isMobile ? "text-base" : ""}>{getTabTitle()}</CardTitle>
+                  <div className="relative">
+                    <Search className={`absolute left-2.5 ${isMobile ? "top-1.5 h-3 w-3" : "top-2.5 h-4 w-4"} text-muted-foreground`} />
+                    <Input 
+                      placeholder="Search templates..." 
+                      className={`${isMobile ? "text-sm h-8 pl-7" : "pl-8 max-w-xs"}`}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                {["all", "agreement", "intake", "confidentiality", "process", "worksheet"].map(tabValue => (
+                  <TabsContent key={tabValue} value={tabValue} className="m-0 overflow-auto">
+                    <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-0 sm:p-4">
+                      {filteredTemplates.length > 0 ? (
+                        filteredTemplates.map((template) => (
+                          <Card key={template.id} className="overflow-hidden hover:border-primary/50 transition-colors">
+                            <CardHeader className={`${isMobile ? "p-3" : "p-4"} bg-muted/50`}>
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
+                                    {template.category === "agreement" ? (
+                                      <FileText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                    ) : template.category === "intake" ? (
+                                      <ClipboardList className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                    ) : template.category === "confidentiality" ? (
+                                      <BookText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                    ) : template.category === "process" ? (
+                                      <Clipboard className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                    ) : (
+                                      <FolderClosed className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                    )}
+                                  </div>
+                                  <CardTitle className={`${isMobile ? "text-sm" : "text-base"}`}>{template.title}</CardTitle>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className={`${isMobile ? "p-3" : "p-4"}`}>
+                              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2 h-10`}>
+                                {template.description}
+                              </div>
+                              <div className="flex items-center justify-between mt-4">
+                                <div className="flex items-center text-xs text-muted-foreground">
+                                  <Clock className="mr-1 h-3 w-3" />
+                                  <span>Used {formatDate(template.lastUsed)}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <div className="col-span-full text-center py-10 text-muted-foreground">
+                          <FileOutput className="mx-auto h-10 w-10 mb-2" />
+                          <h3 className="font-medium">No templates found</h3>
+                          <p className="text-sm mt-1">
+                            {searchTerm ? "Try adjusting your search term." : "Start by creating your first template."}
+                          </p>
+                          {!searchTerm && (
+                            <Button className="mt-4">
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create Template
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </TabsContent>
+                ))}
+              </Tabs>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto pb-2">
-              <div className="flex items-center space-x-2 mb-6">
-                {categories.map((category) => (
-                  <Button
-                    key={category.value}
-                    variant={currentCategory === category.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentCategory(category.value)}
-                  >
-                    {category.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredTemplates.length > 0 ? (
-                filteredTemplates.map((template) => (
-                  <Card key={template.id} className="overflow-hidden hover:border-mediator-300 transition-colors">
-                    <CardHeader className="p-4 bg-secondary/50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileOutput className="h-5 w-5 text-mediator-500" />
-                          <CardTitle className="text-base">{template.title}</CardTitle>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="text-sm text-muted-foreground line-clamp-2 h-10">
-                        {template.description}
-                      </div>
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="mr-1 h-3 w-3" />
-                          <span>Used {formatDate(template.lastUsed)}</span>
-                        </div>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-10 text-muted-foreground">
-                  <FileOutput className="mx-auto h-10 w-10 mb-2" />
-                  <h3 className="font-medium">No templates found</h3>
-                  <p className="text-sm mt-1">
-                    {searchTerm ? "Try adjusting your search term." : "Start by creating your first template."}
-                  </p>
-                  {!searchTerm && (
-                    <Button className="mt-4">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create Template
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
         </Card>
       </div>
     </Layout>

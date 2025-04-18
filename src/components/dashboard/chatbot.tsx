@@ -1,17 +1,27 @@
-import { useState, useEffect } from 'react'; // Added useEffect
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SendHorizonal } from 'lucide-react';
-import { getAllItems } from '@/services/localDbService'; // Import DB service
-import { Contact, Note, Task, CaseFileMetadata, Document } from '@/types/models'; // Import more types
-import { toast } from 'sonner'; // Assuming sonner is used for toasts
+import { SendHorizonal, MessageSquare } from 'lucide-react';
+import { getAllItems } from '@/services/localDbService';
+import { Contact, Note, Task, CaseFileMetadata, Document } from '@/types/models';
+import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const isMobile = useIsMobile();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -93,11 +103,15 @@ export function Chatbot() {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div className={`fixed bottom-4 ${isMobile ? 'inset-x-4' : 'right-4'} z-50`}>
       {open ? (
-        <Card className="w-96 h-[500px] flex flex-col">
+        <Card className={`flex flex-col ${
+          isMobile 
+            ? 'w-full h-[300px]'
+            : 'w-96 h-[300px]'
+        }`}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle>Dashboard Assistant</CardTitle>
+            <CardTitle>Mediation Pro AI</CardTitle>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -106,19 +120,28 @@ export function Chatbot() {
               Close
             </Button>
           </CardHeader>
-          <CardContent className="flex-1 overflow-y-auto space-y-4">
-            {messages.map((msg, i) => (
-              <div 
-                key={i} 
-                className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}
-              >
-                {msg.content}
+          <CardContent className="flex-1 overflow-y-auto space-y-4 pb-0">
+            {messages.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                <p>How can I help you?</p>
               </div>
-            ))}
-            {isLoading && (
-              <div className="p-3 rounded-lg bg-muted">
-                Thinking...
-              </div>
+            ) : (
+              <>
+                {messages.map((msg, i) => (
+                  <div 
+                    key={i} 
+                    className={`p-3 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground ml-auto max-w-[80%]' : 'bg-muted max-w-[80%]'}`}
+                  >
+                    {msg.content}
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="p-3 rounded-lg bg-muted max-w-[80%]">
+                    Thinking...
+                  </div>
+                )}
+                <div ref={messagesEndRef} /> {/* Scroll anchor */}
+              </>
             )}
           </CardContent>
           <div className="p-4 flex gap-2">
@@ -136,10 +159,10 @@ export function Chatbot() {
         </Card>
       ) : (
         <Button 
-          className="rounded-full w-14 h-14" 
+          className="rounded-full w-10 h-10 p-0 shadow-lg ml-auto block" 
           onClick={() => setOpen(true)}
         >
-          AI
+          <MessageSquare className="h-5 w-5" />
         </Button>
       )}
     </div>

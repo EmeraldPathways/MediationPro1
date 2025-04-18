@@ -1,4 +1,3 @@
-
 import { SidebarNav } from "./sidebar-nav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
@@ -25,7 +24,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex w-full">
       <SidebarNav />
-      <main className={`flex-1 transition-all duration-300 ml-16 md:ml-64 p-4 md:p-8 overflow-x-hidden`}>
+      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'ml-0' : 'ml-16 md:ml-64'} p-4 md:p-8 overflow-x-hidden`}>
         {children}
       </main>
       <Chatbot />

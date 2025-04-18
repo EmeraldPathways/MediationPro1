@@ -1,6 +1,6 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mock data for upcoming mediations
 const upcomingMediations = [
@@ -28,6 +28,8 @@ const upcomingMediations = [
 ];
 
 export function UpcomingMediations() {
+  const isMobile = useIsMobile();
+
   // Format date in a readable way
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -49,37 +51,42 @@ export function UpcomingMediations() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Upcoming Mediations</CardTitle>
+      <CardHeader className={isMobile ? "pb-2" : ""}>
+        <CardTitle className={isMobile ? "text-lg" : ""}>Upcoming Mediations</CardTitle>
         <CardDescription>Your scheduled mediation sessions</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {upcomingMediations.map((mediation) => (
             <div
               key={mediation.id}
-              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+              className={`flex flex-col rounded-lg border ${isMobile ? 'p-2' : 'p-4'} hover:bg-muted/50 cursor-pointer transition-colors`}
             >
-              <div className="grid gap-1">
-                <h3 className="font-medium">{mediation.title}</h3>
-                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                  <Calendar className="h-4 w-4" />
+              <h3 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>
+                {mediation.title}
+              </h3>
+              <div className="flex items-center gap-4 mt-1">
+                <div className={`flex items-center ${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground gap-1`}>
+                  <Calendar className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
                   <span>{formatDate(mediation.date)}</span>
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                  <Clock className="h-4 w-4" />
+                <div className={`flex items-center ${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground gap-1`}>
+                  <Clock className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
                   <span>{formatTime(mediation.date)}</span>
                 </div>
               </div>
-              <div className="flex flex-col items-start sm:items-end gap-1">
-                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                  <Users className="h-4 w-4" />
-                  <span>{mediation.participants.length} participants</span>
+              
+              {/* Only show participants and location on desktop */}
+              {!isMobile && (
+                <div className="flex flex-col sm:flex-row justify-between mt-2">
+                  <div className="text-sm text-muted-foreground">
+                    {mediation.participants.length} participants
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {mediation.location}
+                  </div>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {mediation.location}
-                </div>
-              </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from 'uuid'; // Import UUID generator
+import { v4 as uuidv4 } from 'uuid';
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/layout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   User, Search, Plus, MoreHorizontal,
   Mail, Phone, Building, Users,
-  Filter, Briefcase
+  Filter, Briefcase, UsersRound, UserPlus, UserCog
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { Contact, Matter } from "@/types/models"; // Import Contact and Matter types
-import { addItem, getAllItems, putItem, deleteItem } from "@/services/localDbService"; // Import DB functions
+import { Contact, Matter } from "@/types/models";
+import { addItem, getAllItems, putItem, deleteItem } from "@/services/localDbService";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mock contacts with case file links for fallback seeding
 const initialContacts: Contact[] = [
@@ -60,18 +61,13 @@ const initialContacts: Contact[] = [
   },
 ];
 
-// Define Matter type locally if not fully defined in models.ts for this context
-// interface Matter {
-//   id: number; // Or string if UUIDs are used
-//   caseFileNumber: string;
-// }
-
 const ContactsPage = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [matters, setMatters] = useState<Matter[]>([]); // Assuming Matter type is available
+  const [matters, setMatters] = useState<Matter[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   // Load contacts and matters from IndexedDB on component mount
   useEffect(() => {
@@ -83,7 +79,6 @@ const ContactsPage = () => {
           getAllItems('matters')
         ]);
 
-        // If no contacts, seed with initialContacts
         if (loadedContacts.length === 0) {
           console.log("No contacts found, seeding initial contacts...");
           await Promise.all(initialContacts.map(c => addItem('contacts', c)));
@@ -99,14 +94,13 @@ const ContactsPage = () => {
       } catch (error) {
         console.error('Error loading data from IndexedDB:', error);
         toast.error("Failed to load contacts or matters from local storage.");
-        // Optionally fallback to mock data
         setContacts(initialContacts);
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   // Filter contacts based on search term and active tab
   const filteredContacts = contacts.filter(contact => {
@@ -114,11 +108,10 @@ const ContactsPage = () => {
       searchTerm === "" ||
       contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (contact.phone && contact.phone.toLowerCase().includes(searchTerm.toLowerCase())) || // Check if phone exists
-      (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase())); // Check if company exists
+      (contact.phone && contact.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (contact.company && contact.company.toLowerCase().includes(searchTerm.toLowerCase()));
 
     if (activeTab === "all") return matchesSearch;
-    // Ensure contact.type exists and handle potential case differences
     return matchesSearch && contact.type?.toLowerCase() === activeTab.toLowerCase();
   });
 
@@ -126,12 +119,11 @@ const ContactsPage = () => {
   const newEnquiryCount = contacts.filter(contact => contact.type === "New Enquiry").length;
   const clientCount = contacts.filter(contact => contact.type === "Client").length;
   const solicitorCount = contacts.filter(contact => contact.type === "Solicitor").length;
-  const generalCount = contacts.filter(contact => contact.type === "General").length;
 
   // Handle contact deletion
-  const handleDeleteContact = async (id: string | number) => { // Use string | number for ID type flexibility
+  const handleDeleteContact = async (id: string | number) => {
     try {
-      await deleteItem('contacts', String(id)); // Ensure ID is passed as string
+      await deleteItem('contacts', String(id));
       setContacts(prev => prev.filter(contact => contact.id !== id));
       toast.success("Contact deleted successfully");
     } catch (error) {
@@ -142,25 +134,21 @@ const ContactsPage = () => {
 
   // Handle updating a contact
   const handleUpdateContact = async (updatedContactData: ContactFormValues) => {
-    // Ensure the updatedContactData has an 'id' matching the Contact type
     if (!updatedContactData.id) {
         toast.error("Cannot update contact without an ID.");
         return;
     }
-    // Ensure the ID is a string and required fields are present
     const existingContact = contacts.find(c => c.id === String(updatedContactData.id));
     const updatedContact: Contact = {
-        // Spread existing data first to preserve fields not in the form
         ...(existingContact || {}),
-        // Spread form data, ensuring required fields have fallbacks or are guaranteed by the form
         ...updatedContactData,
-        id: String(updatedContactData.id), // Ensure ID is string
-        name: updatedContactData.name || existingContact?.name || 'Unknown Name', // Ensure name is present
-        email: updatedContactData.email || existingContact?.email || 'unknown@example.com', // Ensure email is present
-        type: updatedContactData.type || existingContact?.type || 'Unknown Type', // Ensure type is present
-        caseFileNumbers: updatedContactData.caseFileNumbers ?? [], // Default to empty array
-        createdAt: existingContact?.createdAt ?? new Date(), // Preserve or set createdAt
-        updatedAt: new Date(), // Set updatedAt
+        id: String(updatedContactData.id),
+        name: updatedContactData.name || existingContact?.name || 'Unknown Name',
+        email: updatedContactData.email || existingContact?.email || 'unknown@example.com',
+        type: updatedContactData.type || existingContact?.type || 'Unknown Type',
+        caseFileNumbers: updatedContactData.caseFileNumbers ?? [],
+        createdAt: existingContact?.createdAt ?? new Date(),
+        updatedAt: new Date(),
     };
 
     try {
@@ -177,17 +165,13 @@ const ContactsPage = () => {
 
   // Handle creating a new contact
   const handleCreateContact = async (newContactData: Omit<Contact, 'id'> & { id?: string | number }) => {
-     // The dialog currently generates a random ID. We should ideally let IndexedDB handle it or use UUIDs.
-     // For now, we'll use the provided ID or generate one if missing (though this isn't robust).
-     const contactToSave: Contact = {
+    const contactToSave: Contact = {
         ...newContactData,
-        id: newContactData.id || uuidv4(), // Generate a UUID if no ID provided
-     } as Contact; // Assert type
+        id: newContactData.id || uuidv4(),
+     } as Contact;
 
     try {
       const addedKey = await addItem('contacts', contactToSave);
-      // Use the key returned by IndexedDB if it's different (e.g., auto-increment)
-      // Ensure the ID from DB is treated as string
       const finalContact: Contact = { ...contactToSave, id: String(addedKey) };
       setContacts(prev => [...prev, finalContact]);
       toast.success("Contact created successfully");
@@ -197,150 +181,152 @@ const ContactsPage = () => {
     }
   };
 
+  const getTabTitle = () => {
+    switch(activeTab) {
+      case "new enquiry": return "New Enquiries";
+      case "client": return "Clients";
+      case "solicitor": return "Solicitors";
+      default: return "All Contacts";
+    }
+  };
+
   return (
     <Layout>
-      <div className="flex flex-col space-y-6">
-        <div className="flex justify-between items-center">
+      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Contacts</h1>
-            <p className="text-muted-foreground">
+            <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Contacts</h1>
+            <p className="text-muted-foreground text-sm">
               Manage all your clients and professional contacts
             </p>
           </div>
-          {/* Pass the correct handler to CreateContactDialog */}
           <CreateContactDialog onCreateContact={handleCreateContact} />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search contacts..."
-              className="w-full bg-background py-2 pl-8 pr-4 text-sm border rounded-md"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Button variant="outline" className="flex gap-2 w-full md:w-auto">
-            <Filter className="h-4 w-4" />
-            Filter
-          </Button>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 w-full">
-            <TabsTrigger value="all">
-              All Contacts ({contacts.length})
-            </TabsTrigger>
-            <TabsTrigger value="new enquiry">
-              New Enquiries ({newEnquiryCount})
-            </TabsTrigger>
-            <TabsTrigger value="client">
-              Clients ({clientCount})
-            </TabsTrigger>
-            <TabsTrigger value="solicitor">
-              Solicitors ({solicitorCount})
-            </TabsTrigger>
-            <TabsTrigger value="general">
-              General ({generalCount})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value={activeTab} className="mt-6">
-             {isLoading ? (
-                 <div className="p-6 text-center text-muted-foreground">Loading contacts...</div>
-             ) : (
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="divide-y">
-                      {filteredContacts.length > 0 ? (
-                        filteredContacts.map((contact) => (
-                          <div
-                            key={contact.id} // Use contact.id as key
-                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex items-center">
-                              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                <User className="h-5 w-5" />
-                              </div>
-                              <div className="ml-4">
-                                <p className="text-sm font-medium">{contact.name}</p>
-                                <div className="flex items-center text-xs text-muted-foreground mt-1">
-                                  <div className="flex items-center">
-                                    <Mail className="h-3 w-3 mr-1" />
-                                    <span>{contact.email}</span>
-                                  </div>
-                                  <span className="mx-2">•</span>
-                                  <div className="flex items-center">
-                                    <Phone className="h-3 w-3 mr-1" />
-                                    <span>{contact.phone || 'N/A'}</span> {/* Handle missing phone */}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-2 sm:mt-0 flex items-center text-xs text-muted-foreground ml-14 sm:ml-0">
-                              <div className="flex items-center mr-4">
-                                <Building className="h-3 w-3 mr-1" />
-                                <span>{contact.company || 'N/A'}</span> {/* Handle missing company */}
-                              </div>
+        <Card className="h-[calc(100vh-200px)] flex flex-col overflow-hidden">
+          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
+            <div className="flex justify-between items-center">
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs" : "w-[400px]"}`}>
+                  <TabsTrigger value="all" className="flex items-center gap-1">
+                    <UsersRound className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    All
+                  </TabsTrigger>
+                  <TabsTrigger value="new enquiry" className="flex items-center gap-1">
+                    <UserPlus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    {isMobile ? "Enquiry" : "New Enquiries"}
+                  </TabsTrigger>
+                  <TabsTrigger value="client" className="flex items-center gap-1">
+                    <User className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    Clients
+                  </TabsTrigger>
+                  <TabsTrigger value="solicitor" className="flex items-center gap-1">
+                    <UserCog className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                    {isMobile ? "Sols" : "Solicitors"}
+                  </TabsTrigger>
+                </TabsList>
+                
+                <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
+                  <CardTitle className={isMobile ? "text-base" : ""}>{getTabTitle()}</CardTitle>
+                  <Input 
+                    placeholder="Search contacts..." 
+                    className={`${isMobile ? "text-sm h-8" : "max-w-xs"}`}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <TabsContent value="all" className="m-0 overflow-hidden">
+                  <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0">
+                    {isLoading ? (
+                      <div className="p-6 text-center text-muted-foreground">Loading contacts...</div>
+                    ) : (
+                      <div className="divide-y">
+                        {filteredContacts.length > 0 ? (
+                          filteredContacts.map((contact) => (
+                            <div
+                              key={contact.id}
+                              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
+                            >
                               <div className="flex items-center">
-                                <Users className="h-3 w-3 mr-1" />
-                                <span>{contact.type || 'N/A'}</span> {/* Handle missing type */}
-                              </div>
-                              {contact.caseFileNumbers && contact.caseFileNumbers.length > 0 && (
-                                <div className="flex items-center ml-2 space-x-1">
-                                  <Briefcase className="h-3 w-3 mr-1 flex-shrink-0" />
-                                  <div className="flex flex-wrap gap-x-2 gap-y-1">
-                                    {contact.caseFileNumbers.map((cfNumber, index) => {
-                                      // Find matter based on caseFileNumber string
-                                      const matter = matters.find(m => m.caseFileNumber === cfNumber);
-                                      return matter ? (
-                                        <Link
-                                          // Use matter.id if it's the unique identifier, otherwise use cfNumber
-                                          key={matter.id || cfNumber}
-                                          to={`/case-files/${matter.id}`} // Ensure matter.id is correct link target
-                                          className="text-blue-600 hover:underline text-xs"
-                                          title={`View Case File ${cfNumber}`}
-                                        >
-                                          {cfNumber}
-                                        </Link>
-                                      ) : (
-                                        <span key={`${cfNumber}-${index}`} className="text-xs text-muted-foreground" title="Case file not found">
-                                          {cfNumber}
-                                        </span>
-                                      );
-                                    })}
+                                <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
+                                  <User className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
+                                </div>
+                                <div className="ml-3 min-w-0">
+                                  <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium truncate`}>{contact.name}</p>
+                                  <div className="flex items-center text-xs text-muted-foreground mt-1">
+                                    <div className="flex items-center">
+                                      <Mail className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
+                                      <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.email}</span>
+                                    </div>
+                                    <span className="mx-2">•</span>
+                                    <div className="flex items-center">
+                                      <Phone className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
+                                      <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.phone || 'N/A'}</span>
+                                    </div>
                                   </div>
                                 </div>
-                              )}
-                              <div className="ml-2">
-                                {/* Pass contact data and available case file numbers */}
-                                <EditContactDialog
-                                   contact={contact as ContactFormValues} // Cast should be safer now ID is string
-                                   availableCaseFileNumbers={matters.map(m => m.caseFileNumber)} // Pass available numbers
-                                   onUpdateContact={handleUpdateContact}
-                                   onDelete={() => handleDeleteContact(contact.id)} // Pass ID to delete handler
-                                />
+                              </div>
+                              <div className={`${isMobile ? "mt-1" : "mt-2"} sm:mt-0 flex items-center flex-wrap text-xs text-muted-foreground ml-11 sm:ml-0`}>
+                                <div className="flex items-center mr-4">
+                                  <Building className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
+                                  <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.company || 'N/A'}</span>
+                                </div>
+                                <div className="flex items-center mr-4">
+                                  <Users className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
+                                  <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.type || 'N/A'}</span>
+                                </div>
+                                {contact.caseFileNumbers && contact.caseFileNumbers.length > 0 && (
+                                  <div className="flex items-center mr-2 space-x-1">
+                                    <Briefcase className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"} flex-shrink-0`} />
+                                    <div className="flex flex-wrap gap-x-1 gap-y-1">
+                                      {contact.caseFileNumbers.map((cfNumber, index) => {
+                                        const matter = matters.find(m => m.caseFileNumber === cfNumber);
+                                        return matter ? (
+                                          <Link
+                                            key={matter.id || cfNumber}
+                                            to={`/case-files/${matter.id}`}
+                                            className={`text-blue-600 hover:underline ${isMobile ? "text-[0.65rem]" : "text-xs"}`}
+                                            title={`View Case File ${cfNumber}`}
+                                          >
+                                            {cfNumber}
+                                          </Link>
+                                        ) : (
+                                          <span key={`${cfNumber}-${index}`} className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground`} title="Case file not found">
+                                            {cfNumber}
+                                          </span>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="ml-auto">
+                                  <EditContactDialog
+                                    contact={contact as ContactFormValues}
+                                    availableCaseFileNumbers={matters.map(m => m.caseFileNumber)}
+                                    onUpdateContact={handleUpdateContact}
+                                    onDelete={() => handleDeleteContact(contact.id)}
+                                  />
+                                </div>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className={`${isMobile ? "p-4 text-sm" : "p-6"} text-center text-muted-foreground`}>
+                            <p>No contacts found.</p>
+                            <div className="mt-2">
+                              <CreateContactDialog onCreateContact={handleCreateContact} />
+                            </div>
                           </div>
-                        ))
-                      ) : (
-                        <div className="p-6 text-center text-muted-foreground">
-                          <p>No contacts found.</p>
-                          <div className="mt-2">
-                             {/* Pass the correct handler to CreateContactDialog */}
-                            <CreateContactDialog onCreateContact={handleCreateContact} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </CardContent>
-                </Card>
-             )}
-          </TabsContent>
-        </Tabs>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </CardHeader>
+        </Card>
       </div>
     </Layout>
   );

@@ -1,10 +1,10 @@
-
 import { CheckSquare, Briefcase, Calendar, Share2, Download, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { EditTaskDialog } from "@/components/dialogs/edit-task-dialog";
 import { useTasksContext, Task } from "@/contexts/TasksContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TaskItemProps {
   task: Task;
@@ -20,14 +20,15 @@ export const TaskItem = ({ task }: TaskItemProps) => {
     handleDownloadTask,
     handleSaveTask 
   } = useTasksContext();
+  const isMobile = useIsMobile();
 
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      month: 'short',
+      month: isMobile ? 'numeric' : 'short',
       day: 'numeric',
-      year: 'numeric',
+      year: isMobile ? '2-digit' : 'numeric',
     });
   };
 
@@ -47,7 +48,7 @@ export const TaskItem = ({ task }: TaskItemProps) => {
 
   return (
     <div 
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-muted/50 transition-colors"
+      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
     >
       <div className="flex items-start">
         <Checkbox 
@@ -61,31 +62,31 @@ export const TaskItem = ({ task }: TaskItemProps) => {
             className="flex-shrink-0"
           >
             <CheckSquare 
-              className={`h-5 w-5 mt-0.5 ${
+              className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} mt-0.5 ${
                 task.status === "Completed" ? "text-green-500" : "text-gray-400"
               }`} 
             />
           </button>
           <div className="ml-3">
-            <p className={`text-sm font-medium ${
+            <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium ${
               task.status === "Completed" ? "line-through text-muted-foreground" : ""
             }`}>
               {task.title}
             </p>
             <div className="flex items-center text-xs text-muted-foreground space-x-2 mt-1">
-              <Briefcase className="h-3 w-3" />
-              <span>{task.caseTitle}</span>
+              <Briefcase className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
+              <span className={isMobile ? "text-[0.65rem]" : "text-xs"}>{task.caseTitle}</span>
               <span>•</span>
-              <span className={getPriorityColor(task.priority)}>
+              <span className={`${getPriorityColor(task.priority)} ${isMobile ? "text-[0.65rem]" : "text-xs"}`}>
                 {task.priority} Priority
               </span>
             </div>
           </div>
         </div>
       </div>
-      <div className="mt-2 sm:mt-0 flex items-center justify-between sm:justify-end ml-8 sm:ml-0">
-        <div className="flex items-center text-xs text-muted-foreground mr-4">
-          <Calendar className="h-3 w-3 mr-1" />
+      <div className={`${isMobile ? "mt-1" : "mt-2"} sm:mt-0 flex flex-wrap items-center justify-between sm:justify-end ml-8 sm:ml-0`}>
+        <div className={`flex items-center ${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mr-4`}>
+          <Calendar className={isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"} />
           <span>Due: {formatDate(task.dueDate)}</span>
           <span className="mx-2">•</span>
           <span className={`${
@@ -98,61 +99,112 @@ export const TaskItem = ({ task }: TaskItemProps) => {
             {task.status}
           </span>
         </div>
-        <div className="flex items-center space-x-1">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => handleShareTask(task.id)}
-            title="Share Task"
-          >
-            <Share2 className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => handleDownloadTask(task.id)}
-            title="Download Task"
-          >
-            <Download className="h-4 w-4" />
-          </Button>
-          <EditTaskDialog 
-            task={task}
-            onSave={(updatedTask) => handleSaveTask({
-              id: task.id,
-              title: updatedTask.title || "",
-              caseTitle: updatedTask.caseTitle || "",
-              priority: updatedTask.priority || "",
-              status: updatedTask.status || "",
-              dueDate: updatedTask.dueDate || new Date(),
-              assignedTo: updatedTask.assignedTo || "",
-              description: updatedTask.description || ""
-            })}
-          />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Trash className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete the task "{task.title}".
-                  This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={() => handleDeleteTask(task.id)}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+        {isMobile ? (
+          <div className="flex items-center space-x-0">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-6 w-6"
+              onClick={() => handleShareTask(task.id)}
+              title="Share Task"
+            >
+              <Share2 className="h-3 w-3" />
+            </Button>
+            <EditTaskDialog 
+              task={task}
+              onSave={(updatedTask) => handleSaveTask({
+                id: task.id,
+                title: updatedTask.title || "",
+                caseTitle: updatedTask.caseTitle || "",
+                priority: updatedTask.priority || "",
+                status: updatedTask.status || "",
+                dueDate: updatedTask.dueDate || new Date(),
+                assignedTo: updatedTask.assignedTo || "",
+                description: updatedTask.description || ""
+              })}
+            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6">
+                  <Trash className="h-3 w-3" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the task "{task.title}".
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-1">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => handleShareTask(task.id)}
+              title="Share Task"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => handleDownloadTask(task.id)}
+              title="Download Task"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            <EditTaskDialog 
+              task={task}
+              onSave={(updatedTask) => handleSaveTask({
+                id: task.id,
+                title: updatedTask.title || "",
+                caseTitle: updatedTask.caseTitle || "",
+                priority: updatedTask.priority || "",
+                status: updatedTask.status || "",
+                dueDate: updatedTask.dueDate || new Date(),
+                assignedTo: updatedTask.assignedTo || "",
+                description: updatedTask.description || ""
+              })}
+            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the task "{task.title}".
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
     </div>
   );
