@@ -16,6 +16,8 @@ import {
   FileOutput,
   Menu,
   X,
+  MessageSquare,
+  Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -160,7 +162,7 @@ export function SidebarNav() {
             className="fixed top-4 right-4 z-30 p-3 rounded-md bg-mediator-600 text-white shadow-lg hover:bg-mediator-700 transition-colors"
             aria-label="Open menu"
           >
-            <Menu size={24} />
+            <Menu size={20} /> {/* Reduced size by ~20% */}
           </button>
         )}
       </div>

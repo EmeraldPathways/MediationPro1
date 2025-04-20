@@ -13,6 +13,11 @@ import TemplatesPage from "./pages/Templates";
 import StoragePage from "./pages/Storage";
 import CaseFilesPage from "./pages/CaseFiles";
 import CaseDetailPage from "./pages/CaseDetail";
+import ChecklistPage from "./pages/ChecklistPage"; // Import the new page
+import FormsPage from "./pages/FormsPage"; // Import FormsPage
+import TimelinePage from "./pages/TimelinePage"; // Import TimelinePage
+import MeetingsPage from "./pages/MeetingsPage"; // Import MeetingsPage
+import ClientDetailsPage from "./pages/ClientDetailsPage"; // Import ClientDetailsPage
 import TasksPage from "./pages/Tasks";
 import MeetingNotesPage from "./pages/MeetingNotes";
 import ContactsPage from "./pages/Contacts";
@@ -37,6 +42,12 @@ const App = () => (
           <Route path="/calendar/new" element={<NewSessionPage />} />
           <Route path="/case-files" element={<CaseFilesPage />} />
           <Route path="/case-files/:id" element={<CaseDetailPage />} />
+          <Route path="/case-files/:id/checklist" element={<ChecklistPage />} /> {/* Add route for ChecklistPage */}
+          <Route path="/case-files/:id/forms" element={<FormsPage />} /> {/* Add route for FormsPage */}
+          <Route path="/case-files/:id/timeline" element={<TimelinePage />} /> {/* Add route for TimelinePage */}
+          <Route path="/case-files/:id/meetings" element={<MeetingsPage />} /> {/* Add route for MeetingsPage */}
+          <Route path="/case-files/:id/client-details" element={<ClientDetailsPage />} /> {/* Add route for ClientDetailsPage */}
+          <Route path="/case-files/:id/templates" element={<TemplatesPage />} /> {/* Add route for case-specific Templates */}
           <Route path="/matters" element={<Navigate to="/case-files" replace />} />
           <Route path="/matters/:id" element={<Navigate to="/case-files/:id" replace />} />
           <Route path="/tasks" element={<TasksPage />} />

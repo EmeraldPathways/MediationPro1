@@ -24,7 +24,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex w-full">
       <SidebarNav />
-      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'ml-0' : 'ml-16 md:ml-64'} p-4 md:p-8 overflow-x-hidden`}>
+      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'ml-0 pt-12' : 'ml-16 md:ml-64'} p-4 md:p-8 overflow-x-hidden`}> {/* Added pt-12 for mobile */}
         {children}
       </main>
       <Chatbot />

@@ -14,11 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const formSchema = z.object({
   title: z.string().min(2, "Matter title is required"),
   type: z.string().min(1, "Matter type is required"),
-  status: z.string().min(1, "Status is required"),
   clientName: z.string().min(2, "Client name is required"),
-  description: z.string().optional(),
-  caseFileNumber: z.string().min(1, "Case file number is required"),
-  caseFileName: z.string().min(1, "Case file name is required"),
+  caseFile: z.string().min(1, "Case file is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -55,11 +52,8 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
     defaultValues: {
       title: "",
       type: "Divorce Mediation",
-      status: "Active",
       clientName: "",
-      description: "",
-      caseFileNumber: "",
-      caseFileName: "",
+      caseFile: "",
     },
   });
 
@@ -126,29 +120,6 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
           
           <FormField
             control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Closed">Closed</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
             name="clientName"
             render={({ field }) => (
               <FormItem>
@@ -160,54 +131,36 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
               </FormItem>
             )}
           />
-          
+
+          {/* Placeholder for Case File Dropdown */}
           <FormField
             control={form.control}
-            name="caseFileNumber"
+            name="caseFile"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Case File Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="CF-2023-001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="caseFileName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Case File Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Smith vs Johnson Case File" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Enter matter details here..."
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
+                <FormLabel>Case File</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a case file" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {/* Add SelectItem components for case files here */}
+                    <SelectItem value="case-file-1">Case File 1</SelectItem>
+                    <SelectItem value="case-file-2">Case File 2</SelectItem>
+                    <SelectItem value="case-file-3">Case File 3</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
           
           <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+              Cancel
+            </Button>
             <Button type="submit">Create Matter</Button>
           </DialogFooter>
         </form>
