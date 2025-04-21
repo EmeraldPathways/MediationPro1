@@ -14,6 +14,7 @@ import { StatementOfMeansForm } from "@/components/forms/StatementOfMeansForm";
 import { ClientEnquiryForm } from "@/components/forms/ClientEnquiryForm";
 import { BillingForm } from "@/components/forms/BillingForm";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Matter {
   id: string;
@@ -69,6 +70,7 @@ const FormsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
   const [currentForm, setCurrentForm] = useState<any>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const loadMatter = async () => {
@@ -152,16 +154,16 @@ const FormsPage = () => {
     : availableForms.filter(form => form.category === activeTab);
 
   if (isLoading) {
-    return <Layout><div className="p-6">Loading forms...</div></Layout>;
+    return <Layout><div className="p-4 md:p-6">Loading forms...</div></Layout>;
   }
 
   if (error || !matter) {
     return (
       <Layout>
-        <div className="flex flex-col items-center justify-center h-full p-6">
-          <h1 className="text-2xl font-bold mb-2">{error || "Case Not Found"}</h1>
+        <div className="flex flex-col items-center justify-center h-full p-4 md:p-6">
+          <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold mb-2`}>{error || "Case Not Found"}</h1>
           <p className="text-muted-foreground mb-4">The case you're looking for doesn't exist or couldn't be loaded.</p>
-          <Button asChild>
+          <Button size={isMobile ? "sm" : "default"} asChild>
             <Link to="/case-files">Back to Case Files</Link>
           </Button>
         </div>
@@ -169,47 +171,48 @@ const FormsPage = () => {
     );
   }
 
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+
   return (
     <Layout>
-      <div className="flex flex-col space-y-6 p-4 md:p-6">
+      <div className={`flex flex-col ${isMobile ? "space-y-4" : "space-y-6"} p-4 md:p-6`}>
         {/* Header with back button */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <Button variant="outline" size="icon" asChild>
-              {/* Link back to the main case files list page */}
               <Link to="/case-files">
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className={iconSizeClass} />
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Forms</h1>
-              <div className="text-sm text-muted-foreground">
+              <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Forms</h1>
+              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
                 {matter.title} • {matter.caseFileNumber || matter.id}
               </div>
             </div>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Form
+          <Button size={isMobile ? "sm" : "default"}>
+            <Plus className={`${iconSizeClass} mr-1.5`} />
+            {isMobile ? "New" : "New Form"}
           </Button>
         </div>
 
         {/* If a form is currently open, show it */}
         {currentForm ? (
           <Card>
-            <CardHeader>
+            <CardHeader className={isMobile ? "p-4" : ""}>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>{currentForm.title}</CardTitle>
+                  <CardTitle className={isMobile ? "text-base" : ""}>{currentForm.title}</CardTitle>
                   <CardDescription>{currentForm.description}</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleFormCancel}>Cancel</Button>
-                  <Button onClick={handleFormSave}>Save</Button>
+                  <Button variant="outline" size={isMobile ? "sm" : "default"} onClick={handleFormCancel}>Cancel</Button>
+                  <Button size={isMobile ? "sm" : "default"} onClick={handleFormSave}>Save</Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? "p-4 pt-0" : ""}>
               {renderFormComponent(currentForm.id)}
             </CardContent>
           </Card>
@@ -217,33 +220,82 @@ const FormsPage = () => {
           <>
             {/* Form category tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="mandatory">Mandatory</TabsTrigger>
-                <TabsTrigger value="intake">Intake</TabsTrigger>
-                <TabsTrigger value="financial">Financial</TabsTrigger>
+              <TabsList className={`
+                grid ${isMobile ? "grid-cols-4" : "grid-cols-4"}
+                w-full
+                h-auto p-1
+                bg-muted rounded-lg
+                gap-1
+                ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+              `}>
+                <TabsTrigger
+                  value="all"
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  All
+                </TabsTrigger>
+                <TabsTrigger
+                  value="mandatory"
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  Mandatory
+                </TabsTrigger>
+                <TabsTrigger
+                  value="intake"
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  Intake
+                </TabsTrigger>
+                <TabsTrigger
+                  value="financial"
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  Financial
+                </TabsTrigger>
               </TabsList>
               
-              <TabsContent value={activeTab} className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TabsContent value={activeTab} className={`mt-${isMobile ? '3' : '4'}`}>
+                <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-4'}`}>
                   {filteredForms.map(form => (
                     <Card key={form.id} className="transition-all hover:shadow-md">
-                      <CardHeader className="pb-2">
+                      <CardHeader className={`${isMobile ? "p-3" : "pb-2"}`}>
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-lg flex items-center">
-                              <FileText className="h-5 w-5 mr-2 text-blue-500" />
+                            <CardTitle className={`${isMobile ? "text-sm" : "text-lg"} flex items-center`}>
+                              <FileText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} mr-2 text-blue-500`} />
                               {form.title}
                             </CardTitle>
-                            <CardDescription>{form.description}</CardDescription>
+                            <CardDescription className={isMobile ? "text-xs" : ""}>
+                              {form.description}
+                            </CardDescription>
                           </div>
                           {getStatusBadge(form.status)}
                         </div>
                       </CardHeader>
                       
-                      <CardContent className="pb-2">
+                      <CardContent className={`${isMobile ? "px-3 py-1" : "pb-2"}`}>
                         {form.progress > 0 && (
-                          <div className="space-y-1 mb-4">
+                          <div className="space-y-1 mb-2">
                             <div className="flex justify-between text-xs">
                               <span>Progress</span>
                               <span>{form.progress}%</span>
@@ -253,32 +305,33 @@ const FormsPage = () => {
                         )}
                       </CardContent>
                       
-                      <CardFooter className="flex justify-between">
+                      <CardFooter className={`flex justify-between ${isMobile ? "p-3 pt-1" : ""}`}>
                         {form.status === "completed" ? (
-                          <Button variant="outline" className="w-full" onClick={() => handleFormDownload(form.id)}>
-                            <Download className="mr-2 h-4 w-4" />
+                          <Button variant="outline" className="w-full" size={isMobile ? "sm" : "default"} onClick={() => handleFormDownload(form.id)}>
+                            <Download className={`${iconSizeClass} mr-1.5`} />
                             Download PDF
                           </Button>
                         ) : (
                           <Button 
                             className="w-full"
+                            size={isMobile ? "sm" : "default"}
                             variant={form.status === "in-progress" ? "default" : "outline"}
                             onClick={() => handleFormOpen(form)}
                           >
                             {form.status === "in-progress" ? (
                               <>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Continue Editing
+                                <Edit className={`${iconSizeClass} mr-1.5`} />
+                                {isMobile ? "Continue" : "Continue Editing"}
                               </>
                             ) : form.status === "completed" ? (
                               <>
-                                <Check className="mr-2 h-4 w-4" />
+                                <Check className={`${iconSizeClass} mr-1.5`} />
                                 View Form
                               </>
                             ) : (
                               <>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Fill Out Form
+                                <Plus className={`${iconSizeClass} mr-1.5`} />
+                                {isMobile ? "Fill Out" : "Fill Out Form"}
                               </>
                             )}
                           </Button>
@@ -289,53 +342,53 @@ const FormsPage = () => {
                 </div>
                 
                 {filteredForms.length === 0 && (
-                  <div className="text-center p-6 bg-muted rounded-md">
-                    <p className="text-muted-foreground">No forms in this category</p>
+                  <div className={`text-center ${isMobile ? "p-4" : "p-6"} bg-muted rounded-md`}>
+                    <p className={`text-muted-foreground ${isMobile ? "text-xs" : ""}`}>No forms in this category</p>
                   </div>
                 )}
               </TabsContent>
             </Tabs>
             
-            <Separator />
+            <Separator className="my-1.5" />
             
             {/* Template Forms Section */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Template Forms</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <h2 className={`${isMobile ? "text-lg" : "text-xl"} font-semibold mb-3`}>Template Forms</h2>
+              <div className={`grid grid-cols-1 ${isMobile ? "gap-3" : "md:grid-cols-3 gap-4"}`}>
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-md">Agreement to Mediate</CardTitle>
-                    <CardDescription>Standard template</CardDescription>
+                  <CardHeader className={`${isMobile ? "p-3" : "pb-2"}`}>
+                    <CardTitle className={`${isMobile ? "text-sm" : "text-md"}`}>Agreement to Mediate</CardTitle>
+                    <CardDescription className={isMobile ? "text-xs" : ""}>Standard template</CardDescription>
                   </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      <DownloadCloud className="mr-2 h-4 w-4" />
+                  <CardFooter className={isMobile ? "p-3" : ""}>
+                    <Button variant="outline" size={isMobile ? "sm" : "default"} className="w-full">
+                      <DownloadCloud className={`${iconSizeClass} mr-1.5`} />
                       Download
                     </Button>
                   </CardFooter>
                 </Card>
                 
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-md">Financial Disclosure</CardTitle>
-                    <CardDescription>Standard template</CardDescription>
+                  <CardHeader className={`${isMobile ? "p-3" : "pb-2"}`}>
+                    <CardTitle className={`${isMobile ? "text-sm" : "text-md"}`}>Financial Disclosure</CardTitle>
+                    <CardDescription className={isMobile ? "text-xs" : ""}>Standard template</CardDescription>
                   </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      <DownloadCloud className="mr-2 h-4 w-4" />
+                  <CardFooter className={isMobile ? "p-3" : ""}>
+                    <Button variant="outline" size={isMobile ? "sm" : "default"} className="w-full">
+                      <DownloadCloud className={`${iconSizeClass} mr-1.5`} />
                       Download
                     </Button>
                   </CardFooter>
                 </Card>
                 
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-md">Mediation Outcome</CardTitle>
-                    <CardDescription>Standard template</CardDescription>
+                  <CardHeader className={`${isMobile ? "p-3" : "pb-2"}`}>
+                    <CardTitle className={`${isMobile ? "text-sm" : "text-md"}`}>Mediation Outcome</CardTitle>
+                    <CardDescription className={isMobile ? "text-xs" : ""}>Standard template</CardDescription>
                   </CardHeader>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full">
-                      <DownloadCloud className="mr-2 h-4 w-4" />
+                  <CardFooter className={isMobile ? "p-3" : ""}>
+                    <Button variant="outline" size={isMobile ? "sm" : "default"} className="w-full">
+                      <DownloadCloud className={`${iconSizeClass} mr-1.5`} />
                       Download
                     </Button>
                   </CardFooter>

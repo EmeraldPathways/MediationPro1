@@ -13,6 +13,7 @@ import TemplatesPage from "./pages/Templates";
 import StoragePage from "./pages/Storage";
 import CaseFilesPage from "./pages/CaseFiles";
 import CaseDetailPage from "./pages/CaseDetail";
+import CaseFileSummaryPage from "./pages/CaseFileSummary"; // Import CaseFileSummaryPage
 import ChecklistPage from "./pages/ChecklistPage"; // Import the new page
 import FormsPage from "./pages/FormsPage"; // Import FormsPage
 import TimelinePage from "./pages/TimelinePage"; // Import TimelinePage
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/calendar/new" element={<NewSessionPage />} />
           <Route path="/case-files" element={<CaseFilesPage />} />
           <Route path="/case-files/:id" element={<CaseDetailPage />} />
+          <Route path="/case-files/:id/summary" element={<CaseFileSummaryPage />} /> {/* Add route for CaseFileSummaryPage */}
           <Route path="/case-files/:id/checklist" element={<ChecklistPage />} /> {/* Add route for ChecklistPage */}
           <Route path="/case-files/:id/forms" element={<FormsPage />} /> {/* Add route for FormsPage */}
           <Route path="/case-files/:id/timeline" element={<TimelinePage />} /> {/* Add route for TimelinePage */}

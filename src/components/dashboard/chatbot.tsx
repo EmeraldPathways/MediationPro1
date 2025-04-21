@@ -158,12 +158,14 @@ export function Chatbot() {
           </div>
         </Card>
       ) : (
-        <Button 
-          className="rounded-full w-10 h-10 p-0 shadow-lg ml-auto block" 
-          onClick={() => setOpen(true)}
-        >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
+        <div className="flex justify-end">
+          <Button 
+            className="rounded-full w-10 h-10 p-0 shadow-lg flex items-center justify-center" 
+            onClick={() => setOpen(true)}
+          >
+            <MessageSquare className="h-5 w-5" />
+          </Button>
+        </div>
       )}
     </div>
   );

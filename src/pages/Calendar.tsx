@@ -1,14 +1,16 @@
 import { Layout } from "@/components/layout/layout";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar as CalendarComponent, DayPicker, DayProps } from "@/components/ui/calendar"; // Import DayProps if needed for custom Day
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, Phone, Video, Users } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Phone, Video, Users, MoreHorizontal, Edit, Trash, Eye } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { format, isSameDay } from 'date-fns'; // Import date-fns functions
 
-// Define the Event type for better type checking
+// Define the Event type
 interface Event {
   id: number;
   title: string;
@@ -20,38 +22,15 @@ interface Event {
   caseFileNumber?: string;
 }
 
-// Mock data for calendar events
+// Mock data (replace with actual data fetching)
 const initialEvents: Event[] = [
-  {
-    id: 1,
-    title: "Smith vs. Johnson Mediation",
-    date: new Date(2023, 5, 15, 10, 0),
-    endTime: new Date(2023, 5, 15, 12, 0),
-    location: "Conference Room A",
-    sessionType: "Meeting",
-    caseFileNumber: "CASE-001",
-  },
-  {
-    id: 2,
-    title: "Property Dispute Resolution",
-    date: new Date(2023, 5, 16, 14, 30),
-    endTime: new Date(2023, 5, 16, 16, 30),
-    location: "Virtual Meeting",
-    sessionType: "Video Call",
-    caseFileNumber: "CASE-002",
-  },
-  {
-    id: 3,
-    title: "Employment Contract Negotiation",
-    date: new Date(2023, 5, 18, 9, 0),
-    endTime: new Date(2023, 5, 18, 11, 30),
-    location: "Conference Room B",
-    sessionType: "Meeting",
-    caseFileNumber: "CASE-003",
-  },
+  { id: 1, title: "Smith vs. Johnson Mediation", date: new Date(2024, 3, 15, 10, 0), endTime: new Date(2024, 3, 15, 12, 0), location: "Conference Room A", sessionType: "Meeting", caseFileNumber: "CASE-001" },
+  { id: 2, title: "Property Dispute Resolution", date: new Date(2024, 3, 16, 14, 30), endTime: new Date(2024, 3, 16, 16, 30), location: "Virtual Meeting", sessionType: "Video Call", caseFileNumber: "CASE-002" },
+  { id: 3, title: "Employment Contract Negotiation", date: new Date(2024, 3, 18, 9, 0), endTime: new Date(2024, 3, 18, 11, 30), location: "Conference Room B", sessionType: "Meeting", caseFileNumber: "CASE-003" },
+   { id: 4, title: "Follow Up Smith", date: new Date(2024, 3, 15, 14, 0), endTime: new Date(2024, 3, 15, 15, 0), location: "Office", sessionType: "Phone Call", caseFileNumber: "CASE-001" }, // Added another event for testing
 ];
 
-// Function to create a date object from a date string and time string
+// Function to create a date object from a date object and time string
 export const createDateTimeFromStrings = (dateObj: Date, timeString: string): Date => {
   const [hours, minutes] = timeString.split(':').map(Number);
   const newDate = new Date(dateObj);
@@ -65,15 +44,13 @@ const CalendarPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  
-  // Check for new session data from location state
+
+  // Effect to handle adding new sessions
   useEffect(() => {
     if (location.state && location.state.newSession) {
       const { newSession } = location.state;
-      
-      // Create a new event from the session data
       const newEvent: Event = {
-        id: events.length + 1,
+        id: Date.now(),
         title: newSession.title,
         date: createDateTimeFromStrings(newSession.date, newSession.startTime),
         endTime: createDateTimeFromStrings(newSession.date, newSession.endTime),
@@ -82,86 +59,72 @@ const CalendarPage = () => {
         sessionType: newSession.sessionType || "Meeting",
         caseFileNumber: newSession.caseFileNumber || "",
       };
-      
-      // Add the new event to the events array
       setEvents(prev => [...prev, newEvent]);
-      
-      // Set the date to show the new event
       setDate(newEvent.date);
-      
-      // Show a toast notification
-      toast({
-        title: "Session added",
-        description: `${newEvent.title} (${newEvent.sessionType}) has been added to your calendar`,
+      toast.success("Session added", {
+        description: `${newEvent.title} (${newEvent.sessionType}) has been added.`,
       });
-      
-      // Clear the location state to prevent duplicate additions
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, events.length]);
-  
+  }, [location.state]);
+
   // Get events for the selected date
   const selectedDateEvents = events.filter(
-    (event) => date && event.date.toDateString() === date.toDateString()
+    (event) => date && isSameDay(event.date, date) // Use isSameDay from date-fns
   );
 
-  // Format time from date
+  // Format time using date-fns
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Function to get day events
-  const getDayEvents = (day: Date | undefined) => {
-    if (!day) return [];
-    return events.filter(event => 
-      event.date.getDate() === day.getDate() && 
-      event.date.getMonth() === day.getMonth() &&
-      event.date.getFullYear() === day.getFullYear()
-    );
+    return format(date, 'p'); // 'p' is locale-aware short time format (e.g., 2:30 PM)
   };
 
   // Get session type icon
   const getSessionTypeIcon = (sessionType: string) => {
     switch (sessionType) {
-      case "Phone Call":
-        return <Phone className="h-4 w-4 text-blue-500" />;
-      case "Video Call":
-        return <Video className="h-4 w-4 text-purple-500" />;
-      case "Meeting":
-        return <Users className="h-4 w-4 text-green-500" />;
-      default:
-        return <CalendarIcon className="h-4 w-4" />;
+      case "Phone Call": return <Phone className="h-4 w-4 text-blue-500 flex-shrink-0" />;
+      case "Video Call": return <Video className="h-4 w-4 text-purple-500 flex-shrink-0" />;
+      case "Meeting": return <Users className="h-4 w-4 text-green-500 flex-shrink-0" />;
+      default: return <CalendarIcon className="h-4 w-4 flex-shrink-0" />;
     }
   };
 
-  // Custom day component to show events
-  const renderDay = (dayDate: Date) => {
-    const dayEvents = getDayEvents(dayDate);
-    return (
-      <div className="w-full h-full">
-        <div>{dayDate.getDate()}</div>
-        {dayEvents.length > 0 && (
-          <div className="mt-1">
-            {dayEvents.map(event => (
-              <div 
-                key={event.id} 
-                className={`${isMobile ? 'text-[0.6rem]' : 'text-xs'} bg-blue-100 text-blue-800 rounded px-1 py-0.5 truncate mb-0.5`}
-              >
-                {isMobile ? '' : `${formatTime(event.date)} `}{event.title}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
+  // Handle deleting an event
+  const handleDeleteEvent = (id: number) => {
+     setEvents(prev => prev.filter(event => event.id !== id));
+     toast.success("Session deleted successfully");
   };
+
+  // --- Modifier logic for react-day-picker ---
+  const daysWithEvents = events.map(event => event.date);
+
+  const modifiers = {
+    hasEvent: daysWithEvents, // Pass array of dates that have events
+  };
+
+  const modifiersClassNames = {
+    hasEvent: 'day-has-event', // Custom class name for days with events
+  };
+
+  // --- Custom CSS for the dot indicator (add this to your global CSS or component's CSS) ---
+  /*
+  .day-has-event > div::after { // Target the inner div created by react-day-picker
+    content: '';
+    position: absolute;
+    bottom: 4px; // Adjust position as needed
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px; // Dot size
+    height: 6px; // Dot size
+    border-radius: 50%;
+    background-color: hsl(var(--primary)); // Use your primary color variable
+  }
+  */
 
   return (
     <Layout>
+      {/* Use h-full on the main container if Layout provides a flex context */}
       <div className="flex flex-col h-full space-y-4">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Calendar</h1>
@@ -169,134 +132,128 @@ const CalendarPage = () => {
               Schedule and manage your mediation sessions.
             </p>
           </div>
-          <Button 
-            size={isMobile ? "sm" : "default"}
-            className="flex gap-2 self-start"
-            onClick={() => navigate("/calendar/new")}
-          >
-            <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-            {isMobile ? "Add Session" : "Schedule Session"}
-          </Button>
+           {!isMobile && (
+             <Button onClick={() => navigate("/calendar/new")}>
+               <Plus className="mr-2 h-4 w-4" /> Add Session
+             </Button>
+           )}
         </div>
-        
-        <div className="grid gap-4 md:grid-cols-12 h-[calc(100vh-200px)]">
-          <Card className="md:col-span-8 h-full overflow-hidden flex flex-col">
-            <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-2"}`}>
+
+        {/* Main Content Area: Use Grid for layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 min-h-0">
+
+          {/* Calendar Card: Spans 2 columns on desktop */}
+          <Card className="flex flex-col md:col-span-2">
+            <CardHeader className={`${isMobile ? "px-3 py-2" : "pb-2"}`}>
               <CardTitle className={isMobile ? "text-base" : ""}>Calendar</CardTitle>
               <CardDescription className={isMobile ? "text-xs" : ""}>View and manage your schedule</CardDescription>
             </CardHeader>
-            <CardContent className="flex-1 overflow-auto p-0">
+            <CardContent className="flex-1 overflow-auto p-1 md:p-2"> {/* Allow content to scroll */}
+              <style>{`
+                .day-has-event { position: relative; }
+                .day-has-event::after {
+                  content: '';
+                  position: absolute;
+                  bottom: ${isMobile ? '2px' : '4px'};
+                  left: 50%;
+                  transform: translateX(-50%);
+                  width: ${isMobile ? '4px' : '5px'};
+                  height: ${isMobile ? '4px' : '5px'};
+                  border-radius: 50%;
+                  background-color: hsl(var(--primary));
+                }
+              `}</style>
               <CalendarComponent
                 mode="single"
                 selected={date}
-                onSelect={(selectedDate) => {
-                  if (selectedDate) {
-                    setDate(selectedDate);
-                    navigate(`/calendar/new?date=${selectedDate.toISOString().split('T')[0]}`);
-                  }
-                }}
-                className="w-full h-full pointer-events-auto"
-                classNames={{
+                onSelect={setDate}
+                modifiers={modifiers} // Apply modifiers
+                modifiersClassNames={modifiersClassNames} // Apply class names for modifiers
+                className="w-full" // Calendar takes full width of its container
+                classNames={{ // Use default classes where possible, adjust only necessary ones
                   months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                   month: `space-y-4 w-full ${isMobile ? 'text-sm' : ''}`,
-                  table: "w-full border-collapse",
+                  caption_label: 'text-sm font-medium',
+                  nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                  table: "w-full border-collapse space-y-1",
                   head_row: "flex w-full",
-                  row: "flex w-full mt-2",
-                  cell: `w-full p-${isMobile ? '0.5' : '1'} relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 border border-muted`,
-                  day: "h-full w-full p-0 font-normal aria-selected:opacity-100 hover:bg-muted/50 rounded-md",
-                  day_today: "bg-accent text-accent-foreground",
+                  head_cell: "text-muted-foreground rounded-md w-full justify-center font-normal text-[0.8rem]",
+                  row: "flex w-full mt-1 md:mt-2",
+                  cell: `w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20`,
+                  day: `h-10 md:h-16 w-full p-0 font-normal aria-selected:opacity-100 rounded-md hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring relative`, // Added relative positioning for pseudo-element
                   day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                  day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                  day_today: "bg-accent text-accent-foreground",
+                  day_outside: "day-outside text-muted-foreground opacity-50",
                   day_disabled: "text-muted-foreground opacity-50",
-                  day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                  day_hidden: "invisible",
+                  // day_hidden: "invisible", // Keep default or uncomment if needed
                 }}
-                components={{
-                  Day: ({ date: dayDate, ...props }) => (
-                    <button {...props} className={`h-full w-full ${isMobile ? 'p-0.5' : 'p-1'} overflow-hidden`}>
-                      {renderDay(dayDate)}
-                    </button>
-                  ),
-                }}
+                // Removed custom Day component override
               />
             </CardContent>
           </Card>
-          
-          <Card className="md:col-span-4 h-full flex flex-col">
+
+          {/* Day Details Card: Spans 1 column on desktop */}
+          <Card className="flex flex-col md:col-span-1">
             <CardHeader className={isMobile ? "px-3 py-2" : ""}>
               <CardTitle className={isMobile ? "text-base" : ""}>
-                {date ? date.toLocaleDateString('en-US', { 
-                  weekday: isMobile ? 'short' : 'long', 
-                  month: isMobile ? 'short' : 'long', 
-                  day: 'numeric' 
-                }) : 'Select a date'}
+                {date ? format(date, 'PPPP') : 'Select a date'} {/* Use date-fns format */}
               </CardTitle>
               <CardDescription className={isMobile ? "text-xs" : ""}>
-                {selectedDateEvents.length 
-                  ? `${selectedDateEvents.length} sessions scheduled`
+                {selectedDateEvents.length
+                  ? `${selectedDateEvents.length} session${selectedDateEvents.length !== 1 ? 's' : ''} scheduled`
                   : 'No sessions scheduled'}
               </CardDescription>
             </CardHeader>
-            <CardContent className={`flex-1 overflow-auto ${isMobile ? "p-3" : ""}`}>
+            <CardContent className={`flex-1 overflow-auto ${isMobile ? "p-3" : "p-4"}`}>
               <div className="space-y-3">
                 {selectedDateEvents.length > 0 ? (
                   selectedDateEvents.map((event) => (
                     <div
                       key={event.id}
-                      className={`rounded-lg border ${isMobile ? 'p-2' : 'p-3'} hover:bg-muted/50 cursor-pointer transition-colors`}
+                      className={`rounded-lg border ${isMobile ? 'p-2' : 'p-3'} hover:bg-muted/50 transition-colors`}
                     >
-                      <div className="flex items-center gap-2">
-                        {getSessionTypeIcon(event.sessionType)}
-                        <div className={`font-medium ${isMobile ? "text-sm" : ""}`}>{event.title}</div>
+                      <div className="flex items-start justify-between gap-2">
+                         <div className="flex items-center gap-2 flex-1 min-w-0">
+                           {getSessionTypeIcon(event.sessionType)}
+                           <div className={`font-medium truncate ${isMobile ? "text-sm" : ""}`}>{event.title}</div>
+                         </div>
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                               <MoreHorizontal className="h-4 w-4" />
+                             </Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="end">
+                             <DropdownMenuItem onClick={() => toast.info("Edit session clicked")}>
+                               <Edit className="h-4 w-4 mr-2" /> Edit
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => toast.info("View session clicked")}>
+                               <Eye className="h-4 w-4 mr-2" /> View
+                             </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDeleteEvent(event.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                <Trash className="h-4 w-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
                       </div>
-                      <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground mt-1`}>
-                        {formatTime(event.date)} - {formatTime(event.endTime)}
+                      <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground mt-1.5 pl-6`}>
+                        <div>{formatTime(event.date)} - {formatTime(event.endTime)}</div>
+                        <div>{event.location}</div>
+                        {event.caseFileNumber && (
+                          <div>Case #{event.caseFileNumber}</div>
+                        )}
                       </div>
-                      <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground mt-1`}>
-                        {event.location}
-                      </div>
-                      
-                      {/* Show case file number and session type only on desktop or if mobile, condense them */}
-                      {isMobile ? (
-                        <div className="text-xs mt-1 flex items-center justify-between">
-                          {event.caseFileNumber && (
-                            <span>Case #{event.caseFileNumber}</span>
-                          )}
-                          <span className="flex items-center gap-1 text-muted-foreground">
-                            {getSessionTypeIcon(event.sessionType)}
-                            {event.sessionType}
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          {event.caseFileNumber && (
-                            <div className="text-sm mt-1 flex gap-2">
-                              <span className="font-medium">Case #:</span>
-                              <span>{event.caseFileNumber}</span>
-                            </div>
-                          )}
-                          {event.sessionType && (
-                            <div className="text-sm mt-1 flex gap-2">
-                              <span className="font-medium">Type:</span>
-                              <span className="flex items-center gap-1">
-                                {getSessionTypeIcon(event.sessionType)}
-                                {event.sessionType}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      )}
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-6 text-muted-foreground">
                     <p className={isMobile ? "text-sm" : ""}>No events scheduled for this date.</p>
-                    <Button 
-                      variant="link" 
+                    <Button
+                      variant="link"
                       className={`mt-2 ${isMobile ? "text-sm" : ""}`}
-                      onClick={() => navigate("/calendar/new")}
+                      onClick={() => navigate("/calendar/new", { state: { selectedDate: date?.toISOString().split('T')[0] } })}
                     >
-                      {isMobile ? "Add session" : "+ Add new session"}
+                      + Add new session
                     </Button>
                   </div>
                 )}
@@ -305,6 +262,7 @@ const CalendarPage = () => {
           </Card>
         </div>
       </div>
+      {/* FAB Removed */}
     </Layout>
   );
 };

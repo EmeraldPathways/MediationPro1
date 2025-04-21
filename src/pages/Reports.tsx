@@ -1,9 +1,9 @@
 import { Layout } from "@/components/layout/layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"; // Keep Input import if used elsewhere, otherwise remove
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
+import {
   BarChart,
   Download,
   Calendar,
@@ -22,7 +22,7 @@ import { ResponsiveContainer, BarChart as RechartBarChart, Bar, XAxis, YAxis, To
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 
-// Mock data for billing by matter
+// Mock data (assuming it remains the same)
 const billingByMatter = [
   { name: "Smith vs. Johnson", hours: 24, amount: 6000 },
   { name: "Property Dispute", hours: 18, amount: 4500 },
@@ -30,8 +30,6 @@ const billingByMatter = [
   { name: "Wilson Family", hours: 8, amount: 2000 },
   { name: "Corporate Contract", hours: 16, amount: 4000 },
 ];
-
-// Mock data for time allocation
 const timeAllocation = [
   { name: "Client Meetings", value: 35 },
   { name: "Document Preparation", value: 25 },
@@ -39,8 +37,6 @@ const timeAllocation = [
   { name: "Court Appearances", value: 10 },
   { name: "Administrative", value: 15 },
 ];
-
-// Mock data for monthly revenue
 const monthlyRevenue = [
   { name: "Jan", revenue: 12000 },
   { name: "Feb", revenue: 15000 },
@@ -48,15 +44,12 @@ const monthlyRevenue = [
   { name: "Apr", revenue: 16500 },
   { name: "May", revenue: 19500 },
 ];
-
-// Colors for pie chart
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 const ReportsPage = () => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -66,7 +59,6 @@ const ReportsPage = () => {
     }).format(amount);
   };
 
-  // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -87,6 +79,7 @@ const ReportsPage = () => {
   return (
     <Layout>
       <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}>
+        {/* Header Section (unchanged) */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Reports</h1>
@@ -114,7 +107,9 @@ const ReportsPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-4">
+        {/* Summary Cards - Two Columns starting from Mobile (as per previous correction) */}
+        <div className="grid gap-4 grid-cols-2">
+          {/* Card 1: Total Revenue */}
           <Card>
             <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
               <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -134,7 +129,8 @@ const ReportsPage = () => {
               </div>
             </CardContent>
           </Card>
-          
+
+          {/* Card 2: Billable Hours */}
           <Card>
             <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
               <CardTitle className="text-sm font-medium">Billable Hours</CardTitle>
@@ -154,7 +150,8 @@ const ReportsPage = () => {
               </div>
             </CardContent>
           </Card>
-          
+
+          {/* Card 3: Active Matters */}
           <Card>
             <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
               <CardTitle className="text-sm font-medium">Active Matters</CardTitle>
@@ -174,7 +171,8 @@ const ReportsPage = () => {
               </div>
             </CardContent>
           </Card>
-          
+
+          {/* Card 4: Active Clients */}
           <Card>
             <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
               <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
@@ -196,9 +194,12 @@ const ReportsPage = () => {
           </Card>
         </div>
 
-        <Card className="h-[calc(100vh-380px)] flex flex-col overflow-hidden">
+
+        {/* === MODIFIED SECTION START === */}
+        {/* Removed fixed height and overflow-hidden to prevent content cutoff */}
+        <Card className="flex flex-col"> {/* Removed h-[calc(...)] and overflow-hidden */}
           <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center"> {/* This div seems unnecessary, might remove later if causing issues */}
               <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs" : "w-[400px]"}`}>
                   <TabsTrigger value="overview" className="flex items-center gap-1">
@@ -218,19 +219,23 @@ const ReportsPage = () => {
                     {isMobile ? "Custom" : "Custom"}
                   </TabsTrigger>
                 </TabsList>
-                
+
+                {/* Removed the div containing the search input and dynamic title */}
                 <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
-                  <CardTitle className={isMobile ? "text-base" : ""}>
+                   {/* Displaying the title directly, adjust styling as needed */}
+                   <CardTitle className={isMobile ? "text-base" : ""}>
                     {activeTab === "overview" && "Practice Overview"}
                     {activeTab === "billing" && "Billing Analysis"}
                     {activeTab === "time" && "Time Allocation"}
                     {activeTab === "custom" && "Custom Reports"}
                   </CardTitle>
-                  <Input placeholder="Search reports..." className={`${isMobile ? "text-sm h-8" : "max-w-xs"}`} />
+                  {/* <Input placeholder="Search reports..." className={`${isMobile ? "text-sm h-8" : "max-w-xs"}`} />  <-- REMOVED THIS LINE */}
                 </div>
-                
+
+                {/* Tabs Content (Structure remains the same, but container height is now flexible) */}
                 <TabsContent value="overview" className="m-0 overflow-auto">
-                  <CardContent className="p-0 sm:p-4">
+                   {/* ... Overview Content ... */}
+                   <CardContent className="p-0 sm:p-4">
                     <div className="grid gap-6 md:grid-cols-2">
                       <Card>
                         <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
@@ -254,7 +259,7 @@ const ReportsPage = () => {
                           </div>
                         </CardContent>
                       </Card>
-                      
+
                       <Card>
                         <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
                           <CardTitle className="text-sm font-medium">Time Allocation</CardTitle>
@@ -284,9 +289,9 @@ const ReportsPage = () => {
                             <div className="flex justify-center flex-wrap gap-2">
                               {timeAllocation.map((entry, index) => (
                                 <div key={`legend-${index}`} className="flex items-center mx-2">
-                                  <div 
-                                    className="w-3 h-3 mr-1 rounded-sm" 
-                                    style={{ backgroundColor: COLORS[index % COLORS.length] }} 
+                                  <div
+                                    className="w-3 h-3 mr-1 rounded-sm"
+                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
                                   />
                                   <span className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>{entry.name}</span>
                                 </div>
@@ -298,9 +303,10 @@ const ReportsPage = () => {
                     </div>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="billing" className="m-0 overflow-auto">
-                  <CardContent className="p-0 sm:p-4">
+                   {/* ... Billing Content ... */}
+                   <CardContent className="p-0 sm:p-4">
                     <Card>
                       <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
                         <CardTitle className="text-sm font-medium">Billing by Matter</CardTitle>
@@ -327,16 +333,18 @@ const ReportsPage = () => {
                     </Card>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="time" className="m-0 overflow-auto">
-                  <CardContent className="p-0 sm:p-4">
+                   {/* ... Time Content ... */}
+                   <CardContent className="p-0 sm:p-4">
                     <Card>
                       <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
                         <CardTitle className="text-sm font-medium">Detailed Time Analysis</CardTitle>
                         <CardDescription>Comprehensive analysis of billable hours</CardDescription>
                       </CardHeader>
                       <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
-                        <div className={`${isMobile ? "h-60" : "h-80"} flex flex-col items-center justify-center`}>
+                        {/* Reduced height slightly for mobile pie chart container for better spacing */}
+                        <div className={`${isMobile ? "h-52" : "h-80"} flex flex-col items-center justify-center`}>
                           <ResponsiveContainer width="100%" height="80%">
                             <PieChart>
                               <Pie
@@ -344,7 +352,7 @@ const ReportsPage = () => {
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                outerRadius={isMobile ? 60 : 80}
+                                outerRadius={isMobile ? 60 : 80} // Kept mobile radius smaller
                                 fill="#8884d8"
                                 dataKey="value"
                                 label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
@@ -356,12 +364,13 @@ const ReportsPage = () => {
                               <Tooltip />
                             </PieChart>
                           </ResponsiveContainer>
+                          {/* Legend below chart */}
                           <div className="flex justify-center flex-wrap gap-2 mt-4">
                             {timeAllocation.map((entry, index) => (
                               <div key={`legend-${index}`} className="flex items-center mx-2 bg-muted/50 px-2 py-1 rounded-md">
-                                <div 
-                                  className="w-3 h-3 mr-1 rounded-sm" 
-                                  style={{ backgroundColor: COLORS[index % COLORS.length] }} 
+                                <div
+                                  className="w-3 h-3 mr-1 rounded-sm"
+                                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
                                 />
                                 <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>
                                   {entry.name}: {entry.value}%
@@ -374,9 +383,10 @@ const ReportsPage = () => {
                     </Card>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="custom" className="m-0 overflow-auto">
-                  <CardContent className={`text-center ${isMobile ? "p-4" : "p-8"} text-muted-foreground`}>
+                   {/* ... Custom Content ... */}
+                   <CardContent className={`text-center ${isMobile ? "p-4" : "p-8"} text-muted-foreground`}>
                     <div className="mx-auto max-w-sm">
                       <LineChart className="mx-auto h-10 w-10 mb-2" />
                       <h3 className="font-medium">Create Custom Report</h3>
@@ -394,6 +404,7 @@ const ReportsPage = () => {
             </div>
           </CardHeader>
         </Card>
+        {/* === MODIFIED SECTION END === */}
       </div>
     </Layout>
   );

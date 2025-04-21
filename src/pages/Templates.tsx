@@ -56,14 +56,14 @@ const allTemplates = [
 const TemplatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Keep hook if used for other conditional rendering
 
   // Format date in a readable way
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     if (diffInDays === 0) {
       return "Today";
     } else if (diffInDays === 1) {
@@ -77,19 +77,14 @@ const TemplatesPage = () => {
 
   // Filter templates based on search term and category
   const filteredTemplates = allTemplates.filter(template => {
-    const matchesSearch = searchTerm === "" || 
+    const matchesSearch = searchTerm === "" ||
       template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       template.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesCategory = activeTab === "all" || template.category === activeTab;
-    
+
     return matchesSearch && matchesCategory;
   });
-
-  // Get template count by category
-  const agreementCount = allTemplates.filter(t => t.category === "agreement").length;
-  const intakeCount = allTemplates.filter(t => t.category === "intake").length;
-  const processCount = allTemplates.filter(t => t.category === "process").length;
 
   // Get tab title based on active tab
   const getTabTitle = () => {
@@ -105,15 +100,17 @@ const TemplatesPage = () => {
 
   return (
     <Layout>
-      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}> 
-        {/* Back arrow at the top left */}
+      <div className="flex flex-col w-full max-w-full overflow-hidden">
+        {/* Back arrow */}
         <div className="flex items-center mb-2">
           <Button variant="outline" size="icon" asChild>
-            <a href="/case-files">
+            <a href="/case-files"> {/* Ensure this link is correct */}
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </a>
           </Button>
         </div>
+
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Templates</h1>
@@ -132,103 +129,58 @@ const TemplatesPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Agreement Templates</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{agreementCount}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("agreement")}
-                >View</Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Intake Forms</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{intakeCount}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("intake")}
-                >View</Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Process Templates</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{processCount}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("process")}
-                >View</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Card className="h-[calc(100vh-380px)] flex flex-col overflow-hidden">
-          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
-            <div className="flex justify-between items-center">
-              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid grid-cols-6 ${isMobile ? "w-full text-xs" : "w-[600px]"}`}>
-                  <TabsTrigger value="all" className="flex items-center gap-1">
-                    <Files className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+        {/* Removed Summary Cards Section */}
+
+        {/* Tabs and Content Section */}
+        <Card className="flex flex-col overflow-hidden"> {/* Added overflow-hidden */}
+          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"} overflow-hidden`}> {/* Added overflow-hidden */}
+            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full overflow-hidden"> {/* Added overflow-hidden */}
+              {/* Modified TabsList for 3x2 grid on mobile, 6x1 on md+ */}
+              <TabsList className={`grid grid-cols-3 md:grid-cols-6 gap-1 w-full md:w-auto text-xs md:text-sm h-auto overflow-hidden`}>
+                 <TabsTrigger value="all" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <Files className="h-4 w-4" />
                     All
                   </TabsTrigger>
-                  <TabsTrigger value="agreement" className="flex items-center gap-1">
-                    <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger value="agreement" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <FileText className="h-4 w-4" />
                     Agreements
                   </TabsTrigger>
-                  <TabsTrigger value="intake" className="flex items-center gap-1">
-                    <ClipboardList className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger value="intake" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <ClipboardList className="h-4 w-4" />
                     Intake
                   </TabsTrigger>
-                  <TabsTrigger value="confidentiality" className="flex items-center gap-1">
-                    <BookText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger value="confidentiality" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <BookText className="h-4 w-4" />
                     Confidential
                   </TabsTrigger>
-                  <TabsTrigger value="process" className="flex items-center gap-1">
-                    <Clipboard className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger value="process" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <Clipboard className="h-4 w-4" />
                     Process
                   </TabsTrigger>
-                  <TabsTrigger value="worksheet" className="flex items-center gap-1">
-                    <FolderClosed className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger value="worksheet" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
+                    <FolderClosed className="h-4 w-4" />
                     Worksheets
                   </TabsTrigger>
-                </TabsList>
-                
-                <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
-                  <CardTitle className={isMobile ? "text-base" : ""}>{getTabTitle()}</CardTitle>
-                  <div className="relative">
-                    <Search className={`absolute left-2.5 ${isMobile ? "top-1.5 h-3 w-3" : "top-2.5 h-4 w-4"} text-muted-foreground`} />
-                    <Input 
-                      placeholder="Search templates..." 
-                      className={`${isMobile ? "text-sm h-8 pl-7" : "pl-8 max-w-xs"}`}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+              </TabsList>
+
+              {/* Title and Search Bar */}
+              <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
+                <CardTitle className={isMobile ? "text-base" : ""}>{getTabTitle()}</CardTitle>
+                <div className="relative">
+                  <Search className={`absolute left-2.5 ${isMobile ? "top-1.5 h-3 w-3" : "top-2.5 h-4 w-4"} text-muted-foreground`} />
+                  <Input
+                    placeholder="Search templates..."
+                    className={`${isMobile ? "text-sm h-8 pl-7" : "pl-8 max-w-xs"}`}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-                
-                {["all", "agreement", "intake", "confidentiality", "process", "worksheet"].map(tabValue => (
-                  <TabsContent key={tabValue} value={tabValue} className="m-0 overflow-auto">
-                    <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-0 sm:p-4">
+              </div>
+
+              {/* Tabs Content (Looping through values) */}
+              {["all", "agreement", "intake", "confidentiality", "process", "worksheet"].map(tabValue => (
+                <TabsContent key={tabValue} value={tabValue} className="m-0 pt-0">
+                   <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-0 sm:p-4">
                       {filteredTemplates.length > 0 ? (
                         filteredTemplates.map((template) => (
                           <Card key={template.id} className="overflow-hidden hover:border-primary/50 transition-colors">
@@ -236,26 +188,23 @@ const TemplatesPage = () => {
                               <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2">
                                   <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
-                                    {template.category === "agreement" ? (
-                                      <FileText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                    ) : template.category === "intake" ? (
-                                      <ClipboardList className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                    ) : template.category === "confidentiality" ? (
-                                      <BookText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                    ) : template.category === "process" ? (
-                                      <Clipboard className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                    ) : (
-                                      <FolderClosed className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                    )}
+                                    {/* Icon logic */}
+                                    {template.category === "agreement" ? <FileText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} /> :
+                                     template.category === "intake" ? <ClipboardList className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} /> :
+                                     template.category === "confidentiality" ? <BookText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} /> :
+                                     template.category === "process" ? <Clipboard className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} /> :
+                                     <FolderClosed className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />}
                                   </div>
                                   <CardTitle className={`${isMobile ? "text-sm" : "text-base"}`}>{template.title}</CardTitle>
                                 </div>
                               </div>
                             </CardHeader>
                             <CardContent className={`${isMobile ? "p-3" : "p-4"}`}>
-                              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2 h-10`}>
+                              {/* Description div with fixed height removed */}
+                              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2`}>
                                 {template.description}
                               </div>
+                              {/* Bottom section of the card */}
                               <div className="flex items-center justify-between mt-4">
                                 <div className="flex items-center text-xs text-muted-foreground">
                                   <Clock className="mr-1 h-3 w-3" />
@@ -265,31 +214,26 @@ const TemplatesPage = () => {
                                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
                                     <Download className="h-4 w-4" />
                                   </Button>
+                                  {/* Add other actions like Edit/View if needed */}
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                         ))
                       ) : (
+                        // No results display
                         <div className="col-span-full text-center py-10 text-muted-foreground">
                           <FileOutput className="mx-auto h-10 w-10 mb-2" />
                           <h3 className="font-medium">No templates found</h3>
                           <p className="text-sm mt-1">
-                            {searchTerm ? "Try adjusting your search term." : "Start by creating your first template."}
+                            {searchTerm ? "Try adjusting your search term." : `No templates found in the "${getTabTitle()}" category.`}
                           </p>
-                          {!searchTerm && (
-                            <Button className="mt-4">
-                              <Plus className="mr-2 h-4 w-4" />
-                              Create Template
-                            </Button>
-                          )}
                         </div>
                       )}
                     </CardContent>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
+                </TabsContent>
+              ))}
+            </Tabs>
           </CardHeader>
         </Card>
       </div>

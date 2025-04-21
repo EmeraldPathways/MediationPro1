@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  CreditCard, Plus, DollarSign, FileText, Eye, Edit, 
+import {
+  CreditCard, Plus, DollarSign, FileText, Eye, Edit,
   Trash, Check, Receipt, BanknoteIcon, CircleDollarSign, Files
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -91,7 +91,7 @@ const BillingPage = () => {
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [activeTab, setActiveTab] = useState("all");
   const isMobile = useIsMobile();
-  
+
   // New invoice form state
   const [isCreatingBill, setIsCreatingBill] = useState(false);
   const [newInvoice, setNewInvoice] = useState<Omit<Invoice, 'id'>>({
@@ -101,7 +101,7 @@ const BillingPage = () => {
     status: "Draft",
     date: new Date().toISOString().split('T')[0],
   });
-  
+
   // New payment form state
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
   const [newPayment, setNewPayment] = useState<Omit<Payment, 'id'>>({
@@ -111,7 +111,7 @@ const BillingPage = () => {
     method: "Credit Card",
     notes: ""
   });
-  
+
   // Edit invoice state
   const [isEditingInvoice, setIsEditingInvoice] = useState(false);
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
@@ -133,7 +133,7 @@ const BillingPage = () => {
       currency: 'USD',
     }).format(amount);
   };
-  
+
   // Handle creating a new invoice
   const handleCreateInvoice = () => {
     const id = `INV-${String(invoices.length + 1).padStart(3, '0')}`;
@@ -141,7 +141,7 @@ const BillingPage = () => {
       id,
       ...newInvoice
     };
-    
+
     setInvoices([...invoices, invoice]);
     setIsCreatingBill(false);
     setNewInvoice({
@@ -151,10 +151,10 @@ const BillingPage = () => {
       status: "Draft",
       date: new Date().toISOString().split('T')[0],
     });
-    
+
     toast.success("Invoice created successfully");
   };
-  
+
   // Handle recording a new payment
   const handleRecordPayment = () => {
     const id = `PMT-${String(payments.length + 1).padStart(3, '0')}`;
@@ -162,12 +162,12 @@ const BillingPage = () => {
       id,
       ...newPayment
     };
-    
+
     // Update the related invoice status to "Paid"
-    const updatedInvoices = invoices.map(invoice => 
+    const updatedInvoices = invoices.map(invoice =>
       invoice.id === payment.invoiceId ? { ...invoice, status: "Paid" as const } : invoice
     );
-    
+
     setPayments([...payments, payment]);
     setInvoices(updatedInvoices);
     setIsRecordingPayment(false);
@@ -178,49 +178,49 @@ const BillingPage = () => {
       method: "Credit Card",
       notes: ""
     });
-    
+
     toast.success("Payment recorded successfully");
   };
-  
+
   // Handle updating an invoice
   const handleUpdateInvoice = () => {
     if (!editInvoice) return;
-    
-    const updatedInvoices = invoices.map(invoice => 
+
+    const updatedInvoices = invoices.map(invoice =>
       invoice.id === editInvoice.id ? editInvoice : invoice
     );
-    
+
     setInvoices(updatedInvoices);
     setIsEditingInvoice(false);
     setEditInvoice(null);
-    
+
     toast.success("Invoice updated successfully");
   };
-  
+
   // Start editing an invoice
   const startEditInvoice = (invoice: Invoice) => {
     setEditInvoice({...invoice});
     setIsEditingInvoice(true);
   };
-  
+
   // Filter invoices based on active tab
   const getFilteredInvoices = () => {
     if (activeTab === "all") return invoices;
     return invoices.filter(invoice => invoice.status.toLowerCase() === activeTab);
   };
-  
+
   // Get unpaid invoices for payment dropdown
   const unpaidInvoices = invoices.filter(invoice => invoice.status === "Unpaid");
-  
+
   // Calculate totals
   const draftTotal = invoices
     .filter(i => i.status === "Draft")
     .reduce((sum, inv) => sum + inv.amount, 0);
-    
+
   const unpaidTotal = invoices
     .filter(i => i.status === "Unpaid")
     .reduce((sum, inv) => sum + inv.amount, 0);
-    
+
   const paidTotal = invoices
     .filter(i => i.status === "Paid")
     .reduce((sum, inv) => sum + inv.amount, 0);
@@ -236,7 +236,7 @@ const BillingPage = () => {
 
   return (
     <Layout>
-      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}>
+      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"} overflow-hidden`}> {/* Added overflow-hidden here */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Billing</h1>
@@ -249,7 +249,7 @@ const BillingPage = () => {
               <DialogTrigger asChild>
                 <Button variant="outline" size={isMobile ? "sm" : "default"} className="flex items-center gap-2">
                   <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                  Create Bill
+                  Create Invoice {/* Changed button text */}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
@@ -259,12 +259,12 @@ const BillingPage = () => {
                     Create a new invoice for a client
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <Label htmlFor="client">Client</Label>
-                    <Select 
-                      value={newInvoice.clientName} 
+                    <Select
+                      value={newInvoice.clientName}
                       onValueChange={(value) => setNewInvoice({...newInvoice, clientName: value})}
                     >
                       <SelectTrigger id="client" className={isMobile ? "h-8 text-xs" : ""}>
@@ -277,11 +277,11 @@ const BillingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="matter">Matter</Label>
-                    <Select 
-                      value={newInvoice.matter} 
+                    <Select
+                      value={newInvoice.matter}
                       onValueChange={(value) => setNewInvoice({...newInvoice, matter: value})}
                     >
                       <SelectTrigger id="matter" className={isMobile ? "h-8 text-xs" : ""}>
@@ -294,7 +294,7 @@ const BillingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="amount">Amount ($)</Label>
                     <Input
@@ -306,7 +306,7 @@ const BillingPage = () => {
                       className={isMobile ? "h-8 text-xs" : ""}
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="invoice-date">Date</Label>
                     <Input
@@ -317,11 +317,11 @@ const BillingPage = () => {
                       className={isMobile ? "h-8 text-xs" : ""}
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select 
-                      value={newInvoice.status} 
+                    <Select
+                      value={newInvoice.status}
                       onValueChange={(value: "Draft" | "Unpaid" | "Paid") => setNewInvoice({...newInvoice, status: value})}
                     >
                       <SelectTrigger id="status" className={isMobile ? "h-8 text-xs" : ""}>
@@ -335,17 +335,17 @@ const BillingPage = () => {
                     </Select>
                   </div>
                 </div>
-                
+
                 <DialogFooter>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsCreatingBill(false)}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleCreateInvoice}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
@@ -355,7 +355,7 @@ const BillingPage = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            
+
             <Dialog open={isRecordingPayment} onOpenChange={setIsRecordingPayment}>
               <DialogTrigger asChild>
                 <Button size={isMobile ? "sm" : "default"} className="flex items-center gap-2">
@@ -370,16 +370,16 @@ const BillingPage = () => {
                     Record a new payment for an invoice
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <Label htmlFor="invoice">Invoice</Label>
-                    <Select 
-                      value={newPayment.invoiceId} 
+                    <Select
+                      value={newPayment.invoiceId}
                       onValueChange={(value) => {
                         const invoice = invoices.find(inv => inv.id === value);
                         setNewPayment({
-                          ...newPayment, 
+                          ...newPayment,
                           invoiceId: value,
                           amount: invoice ? invoice.amount : 0
                         });
@@ -397,7 +397,7 @@ const BillingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="payment-amount">Payment Amount ($)</Label>
                     <Input
@@ -409,7 +409,7 @@ const BillingPage = () => {
                       className={isMobile ? "h-8 text-xs" : ""}
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="payment-date">Payment Date</Label>
                     <Input
@@ -420,11 +420,11 @@ const BillingPage = () => {
                       className={isMobile ? "h-8 text-xs" : ""}
                     />
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="payment-method">Payment Method</Label>
-                    <Select 
-                      value={newPayment.method} 
+                    <Select
+                      value={newPayment.method}
                       onValueChange={(value) => setNewPayment({...newPayment, method: value})}
                     >
                       <SelectTrigger id="payment-method" className={isMobile ? "h-8 text-xs" : ""}>
@@ -439,11 +439,11 @@ const BillingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid gap-2">
                     <Label htmlFor="payment-notes">Notes</Label>
-                    <Textarea 
-                      id="payment-notes" 
+                    <Textarea
+                      id="payment-notes"
                       placeholder="Additional payment details..."
                       value={newPayment.notes || ""}
                       onChange={(e) => setNewPayment({...newPayment, notes: e.target.value})}
@@ -451,17 +451,17 @@ const BillingPage = () => {
                     />
                   </div>
                 </div>
-                
+
                 <DialogFooter>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsRecordingPayment(false)}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleRecordPayment}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
@@ -472,7 +472,7 @@ const BillingPage = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            
+
             <Dialog open={isEditingInvoice} onOpenChange={setIsEditingInvoice}>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -481,7 +481,7 @@ const BillingPage = () => {
                     Update invoice details
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 {editInvoice && (
                   <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
@@ -493,11 +493,11 @@ const BillingPage = () => {
                         className={isMobile ? "h-8 text-xs" : ""}
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="edit-client">Client</Label>
-                      <Select 
-                        value={editInvoice.clientName} 
+                      <Select
+                        value={editInvoice.clientName}
                         onValueChange={(value) => setEditInvoice({...editInvoice, clientName: value})}
                       >
                         <SelectTrigger id="edit-client" className={isMobile ? "h-8 text-xs" : ""}>
@@ -510,24 +510,24 @@ const BillingPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="edit-matter">Matter</Label>
-                      <Select 
-                        value={editInvoice.matter} 
-                        onValueChange={(value) => setEditInvoice({...editInvoice, matter: value})}
-                      >
-                        <SelectTrigger id="edit-matter" className={isMobile ? "h-8 text-xs" : ""}>
-                          <SelectValue placeholder="Select matter" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {matters.map((matter) => (
-                            <SelectItem key={matter.id} value={matter.title}>{matter.title}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
+                    <Select
+                      value={editInvoice.matter}
+                      onValueChange={(value) => setEditInvoice({...editInvoice, matter: value})}
+                    >
+                      <SelectTrigger id="edit-matter" className={isMobile ? "h-8 text-xs" : ""}>
+                        <SelectValue placeholder="Select matter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {matters.map((matter) => (
+                          <SelectItem key={matter.id} value={matter.title}>{matter.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                     <div className="grid gap-2">
                       <Label htmlFor="edit-amount">Amount ($)</Label>
                       <Input
@@ -539,7 +539,7 @@ const BillingPage = () => {
                         className={isMobile ? "h-8 text-xs" : ""}
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="edit-date">Date</Label>
                       <Input
@@ -550,11 +550,11 @@ const BillingPage = () => {
                         className={isMobile ? "h-8 text-xs" : ""}
                       />
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="edit-status">Status</Label>
-                      <Select 
-                        value={editInvoice.status} 
+                      <Select
+                        value={editInvoice.status}
                         onValueChange={(value: "Draft" | "Unpaid" | "Paid") => setEditInvoice({...editInvoice, status: value})}
                       >
                         <SelectTrigger id="edit-status" className={isMobile ? "h-8 text-xs" : ""}>
@@ -569,17 +569,17 @@ const BillingPage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 <DialogFooter>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsEditingInvoice(false)}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     variant="destructive"
                     onClick={() => {
                       if (!editInvoice) return;
@@ -592,7 +592,7 @@ const BillingPage = () => {
                   >
                     Delete
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleUpdateInvoice}
                     size={isMobile ? "sm" : "default"}
                     className={isMobile ? "text-xs" : ""}
@@ -605,57 +605,30 @@ const BillingPage = () => {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Draft Bills</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{formatCurrency(draftTotal)}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("draft")}
-                >View</Button>
+        {/* Combined Summary Card */}
+        <Card>
+          <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
+            <CardTitle className="text-sm font-medium">Billing Summary</CardTitle>
+          </CardHeader>
+          <CardContent className={isMobile ? "p-3 pt-0" : ""}>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(draftTotal)}</div>
+                <div className="text-xs text-muted-foreground">Draft Bills</div> {/* Reduced font size */}
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Unpaid Invoices</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{formatCurrency(unpaidTotal)}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("unpaid")}
-                >View</Button>
+              <div>
+                <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(unpaidTotal)}</div>
+                <div className="text-xs text-muted-foreground">Unpaid Invoices</div> {/* Reduced font size */}
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className={`pb-2 ${isMobile ? "p-3" : ""}`}>
-              <CardTitle className="text-sm font-medium">Paid Invoices</CardTitle>
-            </CardHeader>
-            <CardContent className={isMobile ? "p-3 pt-0" : ""}>
-              <div className="flex items-center justify-between">
-                <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>{formatCurrency(paidTotal)}</div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveTab("paid")}
-                >View</Button>
+              <div>
+                <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(paidTotal)}</div>
+                <div className="text-xs text-muted-foreground">Paid Invoices</div> {/* Reduced font size */}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Card className="h-[calc(100vh-380px)] flex flex-col overflow-hidden">
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="h-[calc(100vh-300px)] flex flex-col overflow-hidden"> {/* Adjusted height */}
           <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
             <div className="flex justify-between items-center">
               <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -677,15 +650,15 @@ const BillingPage = () => {
                     Paid
                   </TabsTrigger>
                 </TabsList>
-                
+
                 <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
                   <CardTitle className={isMobile ? "text-base" : ""}>{getTabTitle()}</CardTitle>
-                  <Input 
-                    placeholder="Search invoices..." 
+                  <Input
+                    placeholder="Search invoices..."
                     className={`${isMobile ? "text-sm h-8" : "max-w-xs"}`}
                   />
                 </div>
-                
+
                 <TabsContent value="all" className="m-0 overflow-hidden">
                   <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0">
                     <div className="divide-y">
@@ -709,8 +682,8 @@ const BillingPage = () => {
                                 <div className="flex items-center">
                                   <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>{invoice.id}</p>
                                   <span className={`ml-2 inline-flex px-2 py-0.5 rounded-full text-xs ${
-                                    invoice.status === "Paid" 
-                                      ? "bg-green-100 text-green-800" 
+                                    invoice.status === "Paid"
+                                      ? "bg-green-100 text-green-800"
                                       : invoice.status === "Unpaid"
                                       ? "bg-amber-100 text-amber-800"
                                       : "bg-gray-100 text-gray-800"
@@ -726,8 +699,8 @@ const BillingPage = () => {
                             <div className={`${isMobile ? "mt-1 ml-11" : "mt-0"} sm:mt-0 flex items-center`}>
                               <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>{formatCurrency(invoice.amount)}</p>
                               <div className="ml-4 flex items-center">
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   onClick={() => startEditInvoice(invoice)}
                                   title="Edit"
@@ -736,8 +709,8 @@ const BillingPage = () => {
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 {invoice.status === "Unpaid" && (
-                                  <Button 
-                                    variant="ghost" 
+                                  <Button
+                                    variant="ghost"
                                     size="icon"
                                     onClick={() => {
                                       setNewPayment({
@@ -755,8 +728,8 @@ const BillingPage = () => {
                                     <Check className="h-4 w-4 text-green-500" />
                                   </Button>
                                 )}
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   title="View"
                                   className="h-8 w-8"
@@ -775,7 +748,7 @@ const BillingPage = () => {
                     </div>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="draft" className="m-0 overflow-hidden">
                   <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0">
                     <div className="divide-y">
@@ -805,8 +778,8 @@ const BillingPage = () => {
                             <div className={`${isMobile ? "mt-1 ml-11" : "mt-0"} sm:mt-0 flex items-center`}>
                               <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>{formatCurrency(invoice.amount)}</p>
                               <div className="ml-4 flex items-center">
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   onClick={() => startEditInvoice(invoice)}
                                   title="Edit"
@@ -814,8 +787,8 @@ const BillingPage = () => {
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   title="View"
                                   className="h-8 w-8"
@@ -834,7 +807,7 @@ const BillingPage = () => {
                     </div>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="unpaid" className="m-0 overflow-hidden">
                   <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0">
                     <div className="divide-y">
@@ -864,8 +837,8 @@ const BillingPage = () => {
                             <div className={`${isMobile ? "mt-1 ml-11" : "mt-0"} sm:mt-0 flex items-center`}>
                               <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>{formatCurrency(invoice.amount)}</p>
                               <div className="ml-4 flex items-center">
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   onClick={() => startEditInvoice(invoice)}
                                   title="Edit"
@@ -873,8 +846,8 @@ const BillingPage = () => {
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   onClick={() => {
                                     setNewPayment({
@@ -891,8 +864,8 @@ const BillingPage = () => {
                                 >
                                   <Check className="h-4 w-4 text-green-500" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   title="View"
                                   className="h-8 w-8"
@@ -911,7 +884,7 @@ const BillingPage = () => {
                     </div>
                   </CardContent>
                 </TabsContent>
-                
+
                 <TabsContent value="paid" className="m-0 overflow-hidden">
                   <CardContent className="flex-1 overflow-y-auto overflow-x-hidden p-0">
                     <div className="divide-y">
@@ -941,8 +914,8 @@ const BillingPage = () => {
                             <div className={`${isMobile ? "mt-1 ml-11" : "mt-0"} sm:mt-0 flex items-center`}>
                               <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>{formatCurrency(invoice.amount)}</p>
                               <div className="ml-4 flex items-center">
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   onClick={() => startEditInvoice(invoice)}
                                   title="Edit"
@@ -950,8 +923,8 @@ const BillingPage = () => {
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="icon"
                                   title="View"
                                   className="h-8 w-8"

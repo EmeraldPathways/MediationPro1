@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Matter {
   id: string;
@@ -90,6 +91,7 @@ const TimelinePage = () => {
     date: new Date().toISOString().split('T')[0],
     description: ""
   });
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const loadMatter = async () => {
@@ -177,16 +179,16 @@ const TimelinePage = () => {
   };
 
   if (isLoading) {
-    return <Layout><div className="p-6">Loading timeline...</div></Layout>;
+    return <Layout><div className="p-4 md:p-6">Loading timeline...</div></Layout>;
   }
 
   if (error || !matter) {
     return (
       <Layout>
-        <div className="flex flex-col items-center justify-center h-full p-6">
-          <h1 className="text-2xl font-bold mb-2">{error || "Case Not Found"}</h1>
+        <div className="flex flex-col items-center justify-center h-full p-4 md:p-6">
+          <h1 className={`${isMobile ? "text-xl" : "text-2xl"} font-bold mb-2`}>{error || "Case Not Found"}</h1>
           <p className="text-muted-foreground mb-4">The case you're looking for doesn't exist or couldn't be loaded.</p>
-          <Button asChild>
+          <Button size={isMobile ? "sm" : "default"} asChild>
             <Link to="/case-files">Back to Case Files</Link>
           </Button>
         </div>
@@ -194,47 +196,49 @@ const TimelinePage = () => {
     );
   }
 
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+  const timelineIconSizeClass = isMobile ? "h-4 w-4" : "h-5 w-5";
+
   return (
     <Layout>
-      <div className="flex flex-col space-y-6 p-4 md:p-6">
-        {/* Header with back button */}
+      <div className={`flex flex-col ${isMobile ? "space-y-4" : "space-y-6"} p-4 md:p-6`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <Button variant="outline" size="icon" asChild>
               <Link to="/case-files">
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className={iconSizeClass} />
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Timeline</h1>
-              <div className="text-sm text-muted-foreground">
+              <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Timeline</h1>
+              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
                 {matter.title} • {matter.caseFileNumber || matter.id}
               </div>
             </div>
           </div>
           <Dialog open={isNewEventDialogOpen} onOpenChange={setIsNewEventDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Event
+              <Button size={isMobile ? "sm" : "default"}>
+                <Plus className={`${iconSizeClass} mr-1.5`} />
+                {isMobile ? "Add" : "Add Event"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]">
+            <DialogContent className={isMobile ? "max-w-[95vw] p-4" : "sm:max-w-[525px]"}>
               <DialogHeader>
-                <DialogTitle>Add Timeline Event</DialogTitle>
+                <DialogTitle className={isMobile ? "text-base" : ""}>Add Timeline Event</DialogTitle>
                 <DialogDescription>
                   Add a new event to the case timeline
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="eventType">Event Type</Label>
+              <div className={`grid ${isMobile ? "gap-3 py-3" : "gap-4 py-4"}`}>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="eventType" className={isMobile ? "text-xs" : ""}>Event Type</Label>
                   <Select 
                     value={newEvent.type} 
                     onValueChange={(value) => setNewEvent(prev => ({ ...prev, type: value }))}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}>
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -246,92 +250,96 @@ const TimelinePage = () => {
                   </Select>
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="title">Event Title</Label>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="title" className={isMobile ? "text-xs" : ""}>Event Title</Label>
                   <Input
                     id="title"
                     value={newEvent.title}
                     onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="E.g., Initial Consultation"
+                    className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
                   />
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="date">Date</Label>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="date" className={isMobile ? "text-xs" : ""}>Date</Label>
                   <Input
                     id="date"
                     type="date"
                     value={newEvent.date}
                     onChange={(e) => setNewEvent(prev => ({ ...prev, date: e.target.value }))}
+                    className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
                   />
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="description" className={isMobile ? "text-xs" : ""}>Description</Label>
                   <Textarea
                     id="description"
                     value={newEvent.description}
                     onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Briefly describe this event..."
-                    className="min-h-[80px]"
+                    className={`min-h-[${isMobile ? "60px" : "80px"}] ${isMobile ? "text-xs" : "text-sm"}`}
                   />
                 </div>
               </div>
               
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsNewEventDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleAddEvent}>Add to Timeline</Button>
+              <DialogFooter className={isMobile ? "flex-col space-y-2" : ""}>
+                <Button variant="outline" size={isMobile ? "sm" : "default"} onClick={() => setIsNewEventDialogOpen(false)}>Cancel</Button>
+                <Button size={isMobile ? "sm" : "default"} onClick={handleAddEvent}>Add to Timeline</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* Timeline */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2" />
+          <CardHeader className={isMobile ? "p-4" : ""}>
+            <CardTitle className={`flex items-center ${isMobile ? "text-base" : ""}`}>
+              <Clock className={`${timelineIconSizeClass} mr-2`} />
               Case Timeline
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="relative pl-8 border-l-2 border-border space-y-8 py-2">
+          <CardContent className={isMobile ? "p-4 pt-0" : ""}>
+            <div className={`relative ${isMobile ? "pl-6" : "pl-8"} border-l-2 border-border ${isMobile ? "space-y-6" : "space-y-8"} py-2`}>
               {timelineEvents.map((event, index) => (
                 <div key={event.id} className="relative">
-                  {/* Circle on the timeline */}
-                  <div className="absolute -left-[25px] p-1 rounded-full bg-background border-2 border-border">
-                    {getEventIcon(event.icon)}
+                  <div className={`absolute ${isMobile ? "-left-[20px]" : "-left-[25px]"} p-1 rounded-full bg-background border-2 border-border`}>
+                    {isMobile ? (
+                      <div className="h-4 w-4 flex items-center justify-center">
+                        {getEventIcon(event.icon)}
+                      </div>
+                    ) : (
+                      getEventIcon(event.icon)
+                    )}
                   </div>
                   
-                  {/* Event content */}
-                  <div className="bg-muted/40 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                    <div className="text-sm font-normal text-muted-foreground">
+                  <div className={`bg-muted/40 rounded-lg ${isMobile ? "p-3" : "p-4"} hover:shadow-sm transition-shadow`}>
+                    <div className={`${isMobile ? "text-xs" : "text-sm"} font-normal text-muted-foreground`}>
                       {formatDate(event.date)}
                     </div>
-                    <h3 className="text-lg font-semibold mt-1">{event.title}</h3>
-                    <p className="text-sm mt-1">{event.description}</p>
+                    <h3 className={`${isMobile ? "text-sm" : "text-lg"} font-semibold mt-1`}>{event.title}</h3>
+                    <p className={`${isMobile ? "text-xs" : "text-sm"} mt-1`}>{event.description}</p>
                   </div>
                 </div>
               ))}
               
-              {/* Start point */}
               {timelineEvents.length > 0 && (
-                <div className="absolute top-0 -left-[7px] h-4 w-4 rounded-full bg-primary"></div>
+                <div className={`absolute top-0 ${isMobile ? "-left-[5px] h-3 w-3" : "-left-[7px] h-4 w-4"} rounded-full bg-primary`}></div>
               )}
               
-              {/* End point - Current day */}
-              <div className="absolute bottom-0 -left-[7px] h-4 w-4 rounded-full bg-destructive"></div>
+              <div className={`absolute bottom-0 ${isMobile ? "-left-[5px] h-3 w-3" : "-left-[7px] h-4 w-4"} rounded-full bg-destructive`}></div>
             </div>
             
             {timelineEvents.length === 0 && (
-              <div className="text-center p-6">
-                <p className="text-muted-foreground">No timeline events yet</p>
+              <div className={`text-center ${isMobile ? "p-4" : "p-6"}`}>
+                <p className={`text-muted-foreground ${isMobile ? "text-xs" : ""}`}>No timeline events yet</p>
                 <Button 
                   variant="outline" 
+                  size={isMobile ? "sm" : "default"}
                   className="mt-2"
                   onClick={() => setIsNewEventDialogOpen(true)}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className={`${iconSizeClass} mr-1.5`} />
                   Add First Event
                 </Button>
               </div>
