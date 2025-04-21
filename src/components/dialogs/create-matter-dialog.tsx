@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,7 +14,9 @@ const formSchema = z.object({
   title: z.string().min(2, "Matter title is required"),
   type: z.string().min(1, "Matter type is required"),
   clientName: z.string().min(2, "Client name is required"),
-  caseFile: z.string().min(1, "Case file is required"),
+  caseFile: z.string()
+    .min(9, "Case file must be in format CF-XXXXXX")
+    .regex(/^CF-\d{6}$/, "Must be in format CF-XXXXXX"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -53,7 +54,7 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
       title: "",
       type: "Divorce Mediation",
       clientName: "",
-      caseFile: "",
+      caseFile: "CF-",
     },
   });
 
@@ -73,7 +74,11 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
 
   // Content of the dialog
   const dialogContent = (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent 
+      className="sm:max-w-[425px] mx-auto w-[calc(100%-2rem)]"
+      closeButton={false}
+      onOpenAutoFocus={(event) => event.preventDefault()}
+    >
       <DialogHeader>
         <DialogTitle>Create New Matter</DialogTitle>
       </DialogHeader>
@@ -132,26 +137,30 @@ export function CreateMatterDialog({ onSave, isOpen, onClose, showTrigger = fals
             )}
           />
 
-          {/* Placeholder for Case File Dropdown */}
           <FormField
             control={form.control}
             name="caseFile"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Case File</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a case file" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {/* Add SelectItem components for case files here */}
-                    <SelectItem value="case-file-1">Case File 1</SelectItem>
-                    <SelectItem value="case-file-2">Case File 2</SelectItem>
-                    <SelectItem value="case-file-3">Case File 3</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormLabel>Case File Number</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="CF-XXXXXX" 
+                    {...field} 
+                    onChange={(e) => {
+                      // Ensure the input always starts with CF-
+                      if (!e.target.value.startsWith('CF-')) {
+                        e.target.value = 'CF-' + e.target.value.replace('CF-', '');
+                      }
+                      // Limit to CF- plus 6 digits
+                      const regex = /^CF-\d{0,6}$/;
+                      if (regex.test(e.target.value) || e.target.value === 'CF-') {
+                        field.onChange(e);
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>Format: CF-XXXXXX (where X is a number)</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

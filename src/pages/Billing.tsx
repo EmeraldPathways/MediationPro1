@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  CreditCard, Plus, DollarSign, FileText, Eye, Edit,
-  Trash, Check, Receipt, BanknoteIcon, CircleDollarSign, Files
+  FileText, Eye, Edit, Check, BanknoteIcon, CircleDollarSign, Files, Plus
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { CreateInvoiceDialog } from "@/components/dialogs/create-invoice-dialog";
+import { RecordPaymentDialog } from "@/components/dialogs/record-payment-dialog";
+import { EditInvoiceDialog } from "@/components/dialogs/edit-invoice-dialog";
 
 // Define invoice and payment types
 interface Invoice {
@@ -73,46 +71,15 @@ const initialPayments: Payment[] = [
   }
 ];
 
-// Mock data for clients and matters
-const clients = [
-  { id: 1, name: "John Smith" },
-  { id: 2, name: "Sarah Johnson" },
-  { id: 3, name: "Robert Brown" }
-];
-
-const matters = [
-  { id: 1, title: "Smith vs. Johnson" },
-  { id: 2, title: "Property Dispute Resolution" },
-  { id: 3, title: "Brown Employment Dispute" }
-];
-
 const BillingPage = () => {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [payments, setPayments] = useState<Payment[]>(initialPayments);
   const [activeTab, setActiveTab] = useState("all");
   const isMobile = useIsMobile();
 
-  // New invoice form state
+  // Dialog control states
   const [isCreatingBill, setIsCreatingBill] = useState(false);
-  const [newInvoice, setNewInvoice] = useState<Omit<Invoice, 'id'>>({
-    clientName: "",
-    matter: "",
-    amount: 0,
-    status: "Draft",
-    date: new Date().toISOString().split('T')[0],
-  });
-
-  // New payment form state
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
-  const [newPayment, setNewPayment] = useState<Omit<Payment, 'id'>>({
-    invoiceId: "",
-    amount: 0,
-    date: new Date().toISOString().split('T')[0],
-    method: "Credit Card",
-    notes: ""
-  });
-
-  // Edit invoice state
   const [isEditingInvoice, setIsEditingInvoice] = useState(false);
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
 
@@ -135,66 +102,37 @@ const BillingPage = () => {
   };
 
   // Handle creating a new invoice
-  const handleCreateInvoice = () => {
-    const id = `INV-${String(invoices.length + 1).padStart(3, '0')}`;
-    const invoice: Invoice = {
-      id,
-      ...newInvoice
-    };
-
-    setInvoices([...invoices, invoice]);
-    setIsCreatingBill(false);
-    setNewInvoice({
-      clientName: "",
-      matter: "",
-      amount: 0,
-      status: "Draft",
-      date: new Date().toISOString().split('T')[0],
-    });
-
+  const handleCreateInvoice = (invoiceData: any) => {
+    setInvoices([...invoices, invoiceData]);
     toast.success("Invoice created successfully");
   };
 
   // Handle recording a new payment
-  const handleRecordPayment = () => {
-    const id = `PMT-${String(payments.length + 1).padStart(3, '0')}`;
-    const payment: Payment = {
-      id,
-      ...newPayment
-    };
-
+  const handleRecordPayment = (paymentData: any) => {
     // Update the related invoice status to "Paid"
     const updatedInvoices = invoices.map(invoice =>
-      invoice.id === payment.invoiceId ? { ...invoice, status: "Paid" as const } : invoice
+      invoice.id === paymentData.invoiceId ? { ...invoice, status: "Paid" as const } : invoice
     );
 
-    setPayments([...payments, payment]);
+    setPayments([...payments, paymentData]);
     setInvoices(updatedInvoices);
-    setIsRecordingPayment(false);
-    setNewPayment({
-      invoiceId: "",
-      amount: 0,
-      date: new Date().toISOString().split('T')[0],
-      method: "Credit Card",
-      notes: ""
-    });
-
     toast.success("Payment recorded successfully");
   };
 
   // Handle updating an invoice
-  const handleUpdateInvoice = () => {
-    if (!editInvoice) return;
-
+  const handleUpdateInvoice = (updatedInvoice: Invoice) => {
     const updatedInvoices = invoices.map(invoice =>
-      invoice.id === editInvoice.id ? editInvoice : invoice
+      invoice.id === updatedInvoice.id ? updatedInvoice : invoice
     );
 
     setInvoices(updatedInvoices);
-    setIsEditingInvoice(false);
-    setEditInvoice(null);
-
     toast.success("Invoice updated successfully");
+  };
+
+  // Handle deleting an invoice
+  const handleDeleteInvoice = (invoiceToDelete: Invoice) => {
+    setInvoices(invoices.filter(inv => inv.id !== invoiceToDelete.id));
+    toast.success("Invoice deleted successfully");
   };
 
   // Start editing an invoice
@@ -234,9 +172,12 @@ const BillingPage = () => {
     }
   };
 
+  // Helper for icon size - matching Settings.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+
   return (
     <Layout>
-      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"} overflow-hidden`}> {/* Added overflow-hidden here */}
+      <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"} overflow-hidden`}>
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Billing</h1>
@@ -245,363 +186,48 @@ const BillingPage = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Dialog open={isCreatingBill} onOpenChange={setIsCreatingBill}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size={isMobile ? "sm" : "default"} className="flex items-center gap-2">
-                  <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                  Create Invoice {/* Changed button text */}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Create New Bill</DialogTitle>
-                  <DialogDescription>
-                    Create a new invoice for a client
-                  </DialogDescription>
-                </DialogHeader>
+            <Button 
+              variant="outline" 
+              size={isMobile ? "sm" : "default"} 
+              className="flex items-center gap-2"
+              onClick={() => setIsCreatingBill(true)}
+            >
+              <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+              Create Invoice
+            </Button>
 
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="client">Client</Label>
-                    <Select
-                      value={newInvoice.clientName}
-                      onValueChange={(value) => setNewInvoice({...newInvoice, clientName: value})}
-                    >
-                      <SelectTrigger id="client" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select client" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clients.map((client) => (
-                          <SelectItem key={client.id} value={client.name}>{client.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+            <Button 
+              size={isMobile ? "sm" : "default"} 
+              className="flex items-center gap-2"
+              onClick={() => setIsRecordingPayment(true)}
+            >
+              <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+              Record Payment
+            </Button>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="matter">Matter</Label>
-                    <Select
-                      value={newInvoice.matter}
-                      onValueChange={(value) => setNewInvoice({...newInvoice, matter: value})}
-                    >
-                      <SelectTrigger id="matter" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select matter" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {matters.map((matter) => (
-                          <SelectItem key={matter.id} value={matter.title}>{matter.title}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="amount">Amount ($)</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      step="0.01"
-                      value={newInvoice.amount}
-                      onChange={(e) => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})}
-                      className={isMobile ? "h-8 text-xs" : ""}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="invoice-date">Date</Label>
-                    <Input
-                      id="invoice-date"
-                      type="date"
-                      value={newInvoice.date}
-                      onChange={(e) => setNewInvoice({...newInvoice, date: e.target.value})}
-                      className={isMobile ? "h-8 text-xs" : ""}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={newInvoice.status}
-                      onValueChange={(value: "Draft" | "Unpaid" | "Paid") => setNewInvoice({...newInvoice, status: value})}
-                    >
-                      <SelectTrigger id="status" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Draft">Draft</SelectItem>
-                        <SelectItem value="Unpaid">Unpaid</SelectItem>
-                        <SelectItem value="Paid">Paid</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsCreatingBill(false)}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleCreateInvoice}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                  >
-                    Create
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={isRecordingPayment} onOpenChange={setIsRecordingPayment}>
-              <DialogTrigger asChild>
-                <Button size={isMobile ? "sm" : "default"} className="flex items-center gap-2">
-                  <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                  Record Payment
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Record Payment</DialogTitle>
-                  <DialogDescription>
-                    Record a new payment for an invoice
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="invoice">Invoice</Label>
-                    <Select
-                      value={newPayment.invoiceId}
-                      onValueChange={(value) => {
-                        const invoice = invoices.find(inv => inv.id === value);
-                        setNewPayment({
-                          ...newPayment,
-                          invoiceId: value,
-                          amount: invoice ? invoice.amount : 0
-                        });
-                      }}
-                    >
-                      <SelectTrigger id="invoice" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select invoice" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unpaidInvoices.map((invoice) => (
-                          <SelectItem key={invoice.id} value={invoice.id}>
-                            {invoice.id} - {invoice.clientName} ({formatCurrency(invoice.amount)})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="payment-amount">Payment Amount ($)</Label>
-                    <Input
-                      id="payment-amount"
-                      type="number"
-                      step="0.01"
-                      value={newPayment.amount}
-                      onChange={(e) => setNewPayment({...newPayment, amount: parseFloat(e.target.value)})}
-                      className={isMobile ? "h-8 text-xs" : ""}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="payment-date">Payment Date</Label>
-                    <Input
-                      id="payment-date"
-                      type="date"
-                      value={newPayment.date}
-                      onChange={(e) => setNewPayment({...newPayment, date: e.target.value})}
-                      className={isMobile ? "h-8 text-xs" : ""}
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="payment-method">Payment Method</Label>
-                    <Select
-                      value={newPayment.method}
-                      onValueChange={(value) => setNewPayment({...newPayment, method: value})}
-                    >
-                      <SelectTrigger id="payment-method" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select payment method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Credit Card">Credit Card</SelectItem>
-                        <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                        <SelectItem value="Cash">Cash</SelectItem>
-                        <SelectItem value="Check">Check</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="payment-notes">Notes</Label>
-                    <Textarea
-                      id="payment-notes"
-                      placeholder="Additional payment details..."
-                      value={newPayment.notes || ""}
-                      onChange={(e) => setNewPayment({...newPayment, notes: e.target.value})}
-                      className={isMobile ? "text-xs" : ""}
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsRecordingPayment(false)}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleRecordPayment}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                    disabled={!newPayment.invoiceId || newPayment.amount <= 0}
-                  >
-                    Record Payment
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={isEditingInvoice} onOpenChange={setIsEditingInvoice}>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Edit Invoice</DialogTitle>
-                  <DialogDescription>
-                    Update invoice details
-                  </DialogDescription>
-                </DialogHeader>
-
-                {editInvoice && (
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-id">Invoice ID</Label>
-                      <Input
-                        id="edit-id"
-                        value={editInvoice.id}
-                        disabled
-                        className={isMobile ? "h-8 text-xs" : ""}
-                      />
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-client">Client</Label>
-                      <Select
-                        value={editInvoice.clientName}
-                        onValueChange={(value) => setEditInvoice({...editInvoice, clientName: value})}
-                      >
-                        <SelectTrigger id="edit-client" className={isMobile ? "h-8 text-xs" : ""}>
-                          <SelectValue placeholder="Select client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {clients.map((client) => (
-                            <SelectItem key={client.id} value={client.name}>{client.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-matter">Matter</Label>
-                    <Select
-                      value={editInvoice.matter}
-                      onValueChange={(value) => setEditInvoice({...editInvoice, matter: value})}
-                    >
-                      <SelectTrigger id="edit-matter" className={isMobile ? "h-8 text-xs" : ""}>
-                        <SelectValue placeholder="Select matter" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {matters.map((matter) => (
-                          <SelectItem key={matter.id} value={matter.title}>{matter.title}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-amount">Amount ($)</Label>
-                      <Input
-                        id="edit-amount"
-                        type="number"
-                        step="0.01"
-                        value={editInvoice.amount}
-                        onChange={(e) => setEditInvoice({...editInvoice, amount: parseFloat(e.target.value)})}
-                        className={isMobile ? "h-8 text-xs" : ""}
-                      />
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-date">Date</Label>
-                      <Input
-                        id="edit-date"
-                        type="date"
-                        value={editInvoice.date}
-                        onChange={(e) => setEditInvoice({...editInvoice, date: e.target.value})}
-                        className={isMobile ? "h-8 text-xs" : ""}
-                      />
-                    </div>
-
-                    <div className="grid gap-2">
-                      <Label htmlFor="edit-status">Status</Label>
-                      <Select
-                        value={editInvoice.status}
-                        onValueChange={(value: "Draft" | "Unpaid" | "Paid") => setEditInvoice({...editInvoice, status: value})}
-                      >
-                        <SelectTrigger id="edit-status" className={isMobile ? "h-8 text-xs" : ""}>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Draft">Draft</SelectItem>
-                          <SelectItem value="Unpaid">Unpaid</SelectItem>
-                          <SelectItem value="Paid">Paid</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditingInvoice(false)}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      if (!editInvoice) return;
-                      setInvoices(invoices.filter(inv => inv.id !== editInvoice.id));
-                      setIsEditingInvoice(false);
-                      toast.success("Invoice deleted successfully");
-                    }}
-                    size={isMobile ? "sm" : "default"}
-                    className={`${isMobile ? "text-xs" : ""} mr-2`}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    onClick={handleUpdateInvoice}
-                    size={isMobile ? "sm" : "default"}
-                    className={isMobile ? "text-xs" : ""}
-                  >
-                    Save Changes
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            {/* Modal components */}
+            <CreateInvoiceDialog 
+              isOpen={isCreatingBill} 
+              onClose={() => setIsCreatingBill(false)} 
+              onSave={handleCreateInvoice} 
+              showTrigger={false} 
+            />
+            
+            <RecordPaymentDialog 
+              isOpen={isRecordingPayment} 
+              onClose={() => setIsRecordingPayment(false)} 
+              onSave={handleRecordPayment} 
+              showTrigger={false} 
+              unpaidInvoices={unpaidInvoices} 
+            />
+            
+            <EditInvoiceDialog 
+              isOpen={isEditingInvoice} 
+              onClose={() => setIsEditingInvoice(false)} 
+              onSave={handleUpdateInvoice} 
+              onDelete={handleDeleteInvoice}
+              invoice={editInvoice} 
+            />
           </div>
         </div>
 
@@ -614,39 +240,78 @@ const BillingPage = () => {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(draftTotal)}</div>
-                <div className="text-xs text-muted-foreground">Draft Bills</div> {/* Reduced font size */}
+                <div className="text-xs text-muted-foreground">Draft Bills</div>
               </div>
               <div>
                 <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(unpaidTotal)}</div>
-                <div className="text-xs text-muted-foreground">Unpaid Invoices</div> {/* Reduced font size */}
+                <div className="text-xs text-muted-foreground">Unpaid Invoices</div>
               </div>
               <div>
                 <div className={`${isMobile ? "text-lg" : "text-xl"} font-bold`}>{formatCurrency(paidTotal)}</div>
-                <div className="text-xs text-muted-foreground">Paid Invoices</div> {/* Reduced font size */}
+                <div className="text-xs text-muted-foreground">Paid Invoices</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="h-[calc(100vh-300px)] flex flex-col overflow-hidden"> {/* Adjusted height */}
+        <Card className="h-[calc(100vh-300px)] flex flex-col overflow-hidden">
           <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
             <div className="flex justify-between items-center">
               <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs" : "w-[400px]"}`}>
-                  <TabsTrigger value="all" className="flex items-center gap-1">
-                    <Files className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                <TabsList className={`
+                  grid ${isMobile ? "grid-cols-4" : "grid-cols-4"}
+                  w-full
+                  h-auto p-1
+                  bg-muted rounded-lg
+                  gap-1
+                  ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+                `}>
+                  <TabsTrigger 
+                    value="all" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <Files className={iconSizeClass} />
                     All
                   </TabsTrigger>
-                  <TabsTrigger value="draft" className="flex items-center gap-1">
-                    <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="draft" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <FileText className={iconSizeClass} />
                     Draft
                   </TabsTrigger>
-                  <TabsTrigger value="unpaid" className="flex items-center gap-1">
-                    <BanknoteIcon className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="unpaid" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <BanknoteIcon className={iconSizeClass} />
                     Unpaid
                   </TabsTrigger>
-                  <TabsTrigger value="paid" className="flex items-center gap-1">
-                    <CircleDollarSign className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="paid" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <CircleDollarSign className={iconSizeClass} />
                     Paid
                   </TabsTrigger>
                 </TabsList>
@@ -713,13 +378,7 @@ const BillingPage = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => {
-                                      setNewPayment({
-                                        invoiceId: invoice.id,
-                                        amount: invoice.amount,
-                                        date: new Date().toISOString().split('T')[0],
-                                        method: "Credit Card",
-                                        notes: ""
-                                      });
+                                      // Open payment dialog with this invoice
                                       setIsRecordingPayment(true);
                                     }}
                                     title="Record Payment"
@@ -758,7 +417,6 @@ const BillingPage = () => {
                             key={invoice.id}
                             className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
                           >
-                            {/* Same invoice item structure as "all" tab */}
                             <div className="flex items-center">
                               <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
                                 <FileText className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
@@ -817,7 +475,6 @@ const BillingPage = () => {
                             key={invoice.id}
                             className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
                           >
-                            {/* Same invoice item structure as "all" tab */}
                             <div className="flex items-center">
                               <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
                                 <BanknoteIcon className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
@@ -850,13 +507,6 @@ const BillingPage = () => {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => {
-                                    setNewPayment({
-                                      invoiceId: invoice.id,
-                                      amount: invoice.amount,
-                                      date: new Date().toISOString().split('T')[0],
-                                      method: "Credit Card",
-                                      notes: ""
-                                    });
                                     setIsRecordingPayment(true);
                                   }}
                                   title="Record Payment"
@@ -894,7 +544,6 @@ const BillingPage = () => {
                             key={invoice.id}
                             className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
                           >
-                            {/* Same invoice item structure as "all" tab */}
                             <div className="flex items-center">
                               <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
                                 <Check className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />

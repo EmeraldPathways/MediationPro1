@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import Picker from "react-mobile-picker";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +63,7 @@ interface CreateSessionDialogProps {
 
 export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSessionDialogProps) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const currentDate = new Date();
   const years = Array.from({ length: 50 }, (_, i) => `${currentDate.getFullYear() - 25 + i}`);
   const months = Array.from({ length: 12 }, (_, i) => `${i + 1}`);
@@ -143,7 +145,7 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-2xl">
+      <AlertDialogContent className="max-w-2xl mx-auto w-[calc(100%-2rem)]">
         <AlertDialogHeader>
           <AlertDialogTitle>Schedule New Session</AlertDialogTitle>
           <AlertDialogDescription>

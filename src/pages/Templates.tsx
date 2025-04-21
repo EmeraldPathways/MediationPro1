@@ -56,7 +56,10 @@ const allTemplates = [
 const TemplatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const isMobile = useIsMobile(); // Keep hook if used for other conditional rendering
+  const isMobile = useIsMobile();
+
+  // Helper for icon size - matching Settings.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
 
   // Format date in a readable way
   const formatDate = (dateString: string) => {
@@ -111,7 +114,7 @@ const TemplatesPage = () => {
         </div>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
           <div>
             <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Templates</h1>
             <p className="text-muted-foreground text-sm">
@@ -129,38 +132,91 @@ const TemplatesPage = () => {
           </div>
         </div>
 
-        {/* Removed Summary Cards Section */}
-
         {/* Tabs and Content Section */}
-        <Card className="flex flex-col overflow-hidden"> {/* Added overflow-hidden */}
-          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"} overflow-hidden`}> {/* Added overflow-hidden */}
-            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full overflow-hidden"> {/* Added overflow-hidden */}
-              {/* Modified TabsList for 3x2 grid on mobile, 6x1 on md+ */}
-              <TabsList className={`grid grid-cols-3 md:grid-cols-6 gap-1 w-full md:w-auto text-xs md:text-sm h-auto overflow-hidden`}>
-                 <TabsTrigger value="all" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <Files className="h-4 w-4" />
-                    All
-                  </TabsTrigger>
-                  <TabsTrigger value="agreement" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <FileText className="h-4 w-4" />
-                    Agreements
-                  </TabsTrigger>
-                  <TabsTrigger value="intake" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <ClipboardList className="h-4 w-4" />
-                    Intake
-                  </TabsTrigger>
-                  <TabsTrigger value="confidentiality" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <BookText className="h-4 w-4" />
-                    Confidential
-                  </TabsTrigger>
-                  <TabsTrigger value="process" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <Clipboard className="h-4 w-4" />
-                    Process
-                  </TabsTrigger>
-                  <TabsTrigger value="worksheet" className="flex items-center justify-center gap-1 px-2 py-1.5 md:px-3 md:py-2">
-                    <FolderClosed className="h-4 w-4" />
-                    Worksheets
-                  </TabsTrigger>
+        <Card className="flex flex-col overflow-hidden">
+          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"} overflow-hidden`}>
+            <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full overflow-hidden">
+              {/* Updated TabsList to match Settings.tsx styling */}
+              <TabsList className={`
+                grid ${isMobile ? "grid-cols-3 md:grid-cols-6" : "grid-cols-6"}
+                w-full
+                h-auto p-1
+                bg-muted rounded-lg
+                gap-1
+                ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+              `}>
+                <TabsTrigger 
+                  value="all" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <Files className={iconSizeClass} />
+                  All
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="agreement" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <FileText className={iconSizeClass} />
+                  Agreements
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="intake" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <ClipboardList className={iconSizeClass} />
+                  Intake
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="confidentiality" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <BookText className={iconSizeClass} />
+                  {isMobile ? "Confid." : "Confidential"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="process" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <Clipboard className={iconSizeClass} />
+                  Process
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="worksheet" 
+                  className={`
+                    flex items-center justify-center gap-1.5
+                    ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                    rounded-md
+                    data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                  `}
+                >
+                  <FolderClosed className={iconSizeClass} />
+                  {isMobile ? "Sheets" : "Worksheets"}
+                </TabsTrigger>
               </TabsList>
 
               {/* Title and Search Bar */}

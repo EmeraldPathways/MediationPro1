@@ -106,7 +106,7 @@ export function CreateTemplateDialog({ isOpen, onClose }: CreateTemplateDialogPr
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-lg px-4 sm:px-6">
+      <AlertDialogContent className="max-w-lg mx-auto w-[calc(100%-2rem)]">
         <AlertDialogHeader>
           <AlertDialogTitle>Link New Template</AlertDialogTitle>
           <AlertDialogDescription>

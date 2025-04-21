@@ -7,8 +7,32 @@ import { Calendar } from "@/components/ui/calendar"; // Standard calendar compon
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ChevronLeft, Phone, Video, Users, Calendar as CalendarIcon } from "lucide-react"; // Added CalendarIcon
+import { ChevronLeft, Phone, Video, Users, Calendar as CalendarIcon, Plus } from "lucide-react"; // Added Plus icon
 import { toast } from "@/hooks/use-toast"; // Assuming use-toast is your preferred hook
+import { createDateTimeFromStrings } from "./Calendar"; // Import the helper function
+import { isSameDay } from 'date-fns'; // Import isSameDay
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile hook
+
+// Define the Event type (copied from Calendar.tsx)
+interface Event {
+  id: number;
+  title: string;
+  date: Date;
+  endTime: Date;
+  location: string;
+  notes?: string;
+  sessionType: string;
+  caseFileNumber?: string;
+}
+
+// Mock data (replace with actual data fetching) (copied from Calendar.tsx)
+const initialEvents: Event[] = [
+  { id: 1, title: "Smith vs. Johnson Mediation", date: new Date(2024, 3, 15, 10, 0), endTime: new Date(2024, 3, 15, 12, 0), location: "Conference Room A", sessionType: "Meeting", caseFileNumber: "CASE-001" },
+  { id: 2, title: "Property Dispute Resolution", date: new Date(2024, 3, 16, 14, 30), endTime: new Date(2024, 3, 16, 16, 30), location: "Virtual Meeting", sessionType: "Video Call", caseFileNumber: "CASE-002" },
+  { id: 3, title: "Employment Contract Negotiation", date: new Date(2024, 3, 18, 9, 0), endTime: new Date(2024, 3, 18, 11, 30), location: "Conference Room B", sessionType: "Meeting", caseFileNumber: "CASE-003" },
+   { id: 4, title: "Follow Up Smith", date: new Date(2024, 3, 15, 14, 0), endTime: new Date(2024, 3, 15, 15, 0), location: "Office", sessionType: "Phone Call", caseFileNumber: "CASE-001" }, // Added another event for testing
+];
+
 import {
   Form,
   FormControl,
@@ -51,6 +75,7 @@ const NewSessionPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dateParam = searchParams.get("date");
+  const isMobile = useIsMobile(); // Add the mobile check
   // Parse the date carefully, providing a default if invalid
   let initialDate: Date | undefined;
   if (dateParam) {
@@ -63,6 +88,20 @@ const NewSessionPage = () => {
       console.error("Invalid date parameter:", dateParam);
     }
   }
+
+  const [events, setEvents] = useState<Event[]>(initialEvents); // Add state for events
+
+  // --- Modifier logic for react-day-picker (copied from Calendar.tsx) ---
+  const daysWithEvents = events.map(event => event.date);
+
+  const modifiers = {
+    hasEvent: daysWithEvents, // Pass array of dates that have events
+  };
+
+  const modifiersClassNames = {
+    hasEvent: 'day-has-event', // Custom class name for days with events
+  };
+  // --- End Modifier logic ---
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -233,7 +272,22 @@ const NewSessionPage = () => {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-full p-2" align="start">
+                      {/* Custom CSS for the dot indicator (copied from Calendar.tsx) */}
+                      <style>{`
+                        .day-has-event { position: relative; }
+                        .day-has-event::after {
+                          content: '';
+                          position: absolute;
+                          bottom: 4px; // Adjust position as needed
+                          left: 50%;
+                          transform: translateX(-50%);
+                          width: 5px; // Dot size
+                          height: 5px; // Dot size
+                          border-radius: 50%;
+                          background-color: hsl(var(--primary)); // Use your primary color variable
+                        }
+                      `}</style>
                       {/* Using standard Calendar component */}
                       <Calendar
                         mode="single"
@@ -241,6 +295,25 @@ const NewSessionPage = () => {
                         onSelect={field.onChange}
                         disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))} // Disable past dates
                         initialFocus
+                        modifiers={modifiers} // Apply modifiers
+                        modifiersClassNames={modifiersClassNames} // Apply class names for modifiers
+                        className="w-full" // Ensure calendar takes full width of popover
+                        classNames={{ // Apply class names from Calendar.tsx for consistent styling
+                          months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                          month: `space-y-4 w-full`,
+                          caption_label: 'text-sm font-medium',
+                          nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
+                          table: "w-full border-collapse space-y-1",
+                          head_row: "flex w-full",
+                          head_cell: "text-muted-foreground rounded-md w-full justify-center font-normal text-[0.8rem]",
+                          row: "flex w-full mt-1 md:mt-2",
+                          cell: `w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20`,
+                          day: `h-10 md:h-16 w-full p-0 font-normal aria-selected:opacity-100 rounded-md hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring relative`, // Added relative positioning for pseudo-element
+                          day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                          day_today: "bg-accent text-accent-foreground",
+                          day_outside: "day-outside text-muted-foreground opacity-50",
+                          day_disabled: "text-muted-foreground opacity-50",
+                        }}
                       />
                     </PopoverContent>
                   </Popover>

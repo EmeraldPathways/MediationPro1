@@ -8,6 +8,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Email() {
   const isMobile = useIsMobile();
+  
+  // Helper for icon size - matching Settings.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
 
   return (
     <Layout>
@@ -29,24 +32,65 @@ export default function Email() {
           <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
             <div className="flex justify-between items-center">
               <Tabs defaultValue="inbox" className="w-full">
-                <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs" : "w-[400px]"}`}>
-                  <TabsTrigger value="inbox" className="flex items-center gap-1">
-                    <Inbox className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                {/* === UPDATED TabsList to match Settings.tsx === */}
+                <TabsList className={`
+                  grid ${isMobile ? "grid-cols-4" : "grid-cols-4"}
+                  w-full
+                  h-auto p-1
+                  bg-muted rounded-lg
+                  gap-1
+                  ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+                `}>
+                  <TabsTrigger 
+                    value="inbox" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <Inbox className={iconSizeClass} />
                     Inbox
                   </TabsTrigger>
-                  <TabsTrigger value="sent" className="flex items-center gap-1">
-                    <Send className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="sent" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <Send className={iconSizeClass} />
                     Sent
                   </TabsTrigger>
-                  <TabsTrigger value="archive" className="flex items-center gap-1">
-                    <Archive className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="archive" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <Archive className={iconSizeClass} />
                     {isMobile ? "Arch" : "Archive"}
                   </TabsTrigger>
-                  <TabsTrigger value="trash" className="flex items-center gap-1">
-                    <Trash className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+                  <TabsTrigger 
+                    value="trash" 
+                    className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                  >
+                    <Trash className={iconSizeClass} />
                     Trash
                   </TabsTrigger>
                 </TabsList>
+                {/* === END UPDATED TabsList === */}
                 
                 <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
                   <CardTitle className={isMobile ? "text-base" : ""}>Inbox</CardTitle>

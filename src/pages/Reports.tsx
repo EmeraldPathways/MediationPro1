@@ -76,6 +76,9 @@ const ReportsPage = () => {
     return null;
   };
 
+  // Helper for icon size - matching Settings.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+
   return (
     <Layout>
       <div className={`flex flex-col h-full ${isMobile ? "space-y-4" : "space-y-6"}`}>
@@ -194,217 +197,201 @@ const ReportsPage = () => {
           </Card>
         </div>
 
+        {/* Tabs Section - Updated to match Settings.tsx styling */}
+        <Card className="flex flex-col w-full">
+          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"} w-full`}>
+            <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className={`
+                  grid ${isMobile ? "grid-cols-4" : "grid-cols-4"}
+                  w-full
+                  h-auto p-1
+                  bg-muted rounded-lg
+                  gap-1
+                  ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+                `}>
+                <TabsTrigger 
+                  value="overview" 
+                  className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                >
+                  <BarChart className={iconSizeClass} />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="billing" 
+                  className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                >
+                  <TrendingUp className={iconSizeClass} />
+                  Billing
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="time" 
+                  className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                >
+                  <PieChartIcon className={iconSizeClass} />
+                  {isMobile ? "Time" : "Time Usage"}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="custom" 
+                  className={`
+                      flex items-center justify-center gap-1.5
+                      ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                      rounded-md
+                      data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+                    `}
+                >
+                  <Filter className={iconSizeClass} />
+                  Custom
+                </TabsTrigger>
+              </TabsList>
 
-        {/* === MODIFIED SECTION START === */}
-        {/* Removed fixed height and overflow-hidden to prevent content cutoff */}
-        <Card className="flex flex-col"> {/* Removed h-[calc(...)] and overflow-hidden */}
-          <CardHeader className={`${isMobile ? "px-2 py-2" : "pb-0"}`}>
-            <div className="flex justify-between items-center"> {/* This div seems unnecessary, might remove later if causing issues */}
-              <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs" : "w-[400px]"}`}>
-                  <TabsTrigger value="overview" className="flex items-center gap-1">
-                    <BarChart className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                    {isMobile ? "Overview" : "Overview"}
-                  </TabsTrigger>
-                  <TabsTrigger value="billing" className="flex items-center gap-1">
-                    <TrendingUp className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                    {isMobile ? "Billing" : "Billing"}
-                  </TabsTrigger>
-                  <TabsTrigger value="time" className="flex items-center gap-1">
-                    <PieChartIcon className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                    {isMobile ? "Time" : "Time Usage"}
-                  </TabsTrigger>
-                  <TabsTrigger value="custom" className="flex items-center gap-1">
-                    <Filter className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-                    {isMobile ? "Custom" : "Custom"}
-                  </TabsTrigger>
-                </TabsList>
+              <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
+                <CardTitle className={isMobile ? "text-base" : ""}>
+                  {activeTab === "overview" && "Practice Overview"}
+                  {activeTab === "billing" && "Billing Analysis"}
+                  {activeTab === "time" && "Time Allocation"}
+                  {activeTab === "custom" && "Custom Reports"}
+                </CardTitle>
+              </div>
 
-                {/* Removed the div containing the search input and dynamic title */}
-                <div className={`flex flex-col ${isMobile ? "gap-2" : "gap-0"} sm:flex-row sm:justify-between sm:items-center ${isMobile ? "mt-2 mb-1" : "mt-4 mb-2"}`}>
-                   {/* Displaying the title directly, adjust styling as needed */}
-                   <CardTitle className={isMobile ? "text-base" : ""}>
-                    {activeTab === "overview" && "Practice Overview"}
-                    {activeTab === "billing" && "Billing Analysis"}
-                    {activeTab === "time" && "Time Allocation"}
-                    {activeTab === "custom" && "Custom Reports"}
-                  </CardTitle>
-                  {/* <Input placeholder="Search reports..." className={`${isMobile ? "text-sm h-8" : "max-w-xs"}`} />  <-- REMOVED THIS LINE */}
+              <TabsContent value="overview" className="m-0 p-0 w-full">
+                <div className="w-full">
+                  <Card className="w-full border-0 shadow-none">
+                    <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
+                      <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                      <CardDescription>Revenue trend over past months</CardDescription>
+                    </CardHeader>
+                    <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
+                      <div className={`${isMobile ? "h-60" : "h-72"} w-full`}>
+                        <ResponsiveContainer width="99%" height="100%">
+                          <RechartBarChart
+                            data={monthlyRevenue}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="revenue" name="Revenue ($)" fill="#8884d8" />
+                          </RechartBarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
+              </TabsContent>
 
-                {/* Tabs Content (Structure remains the same, but container height is now flexible) */}
-                <TabsContent value="overview" className="m-0 overflow-auto">
-                   {/* ... Overview Content ... */}
-                   <CardContent className="p-0 sm:p-4">
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <Card>
-                        <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
-                          <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-                          <CardDescription>Revenue trend over past months</CardDescription>
-                        </CardHeader>
-                        <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
-                          <div className={`${isMobile ? "h-60" : "h-72"}`}>
-                            <ResponsiveContainer width="100%" height="100%">
-                              <RechartBarChart
-                                data={monthlyRevenue}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                              >
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="revenue" name="Revenue ($)" fill="#8884d8" />
-                              </RechartBarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </CardContent>
-                      </Card>
+              <TabsContent value="billing" className="m-0 p-0 w-full">
+                <div className="w-full">
+                  <Card className="w-full border-0 shadow-none">
+                    <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
+                      <CardTitle className="text-sm font-medium">Billing by Matter</CardTitle>
+                      <CardDescription>Hours billed and revenue by matter</CardDescription>
+                    </CardHeader>
+                    <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
+                      <div className={`${isMobile ? "h-60" : "h-80"} w-full`}>
+                        <ResponsiveContainer width="99%" height="100%">
+                          <RechartBarChart
+                            data={billingByMatter}
+                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          >
+                            <XAxis dataKey="name" tickFormatter={(value) => value.split(' ')[0]} />
+                            <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                            <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend />
+                            <Bar yAxisId="left" dataKey="hours" name="Hours" fill="#8884d8" />
+                            <Bar yAxisId="right" dataKey="amount" name="Amount ($)" fill="#82ca9d" />
+                          </RechartBarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
 
-                      <Card>
-                        <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
-                          <CardTitle className="text-sm font-medium">Time Allocation</CardTitle>
-                          <CardDescription>How your time is distributed</CardDescription>
-                        </CardHeader>
-                        <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
-                          <div className={`${isMobile ? "h-60" : "h-72"} flex flex-col items-center justify-center`}>
-                            <ResponsiveContainer width="100%" height="80%">
-                              <PieChart>
-                                <Pie
-                                  data={timeAllocation}
-                                  cx="50%"
-                                  cy="50%"
-                                  labelLine={false}
-                                  outerRadius={isMobile ? 60 : 80}
-                                  fill="#8884d8"
-                                  dataKey="value"
-                                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                >
-                                  {timeAllocation.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                  ))}
-                                </Pie>
-                                <Tooltip />
-                              </PieChart>
-                            </ResponsiveContainer>
-                            <div className="flex justify-center flex-wrap gap-2">
-                              {timeAllocation.map((entry, index) => (
-                                <div key={`legend-${index}`} className="flex items-center mx-2">
-                                  <div
-                                    className="w-3 h-3 mr-1 rounded-sm"
-                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                  />
-                                  <span className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>{entry.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </CardContent>
-                </TabsContent>
-
-                <TabsContent value="billing" className="m-0 overflow-auto">
-                   {/* ... Billing Content ... */}
-                   <CardContent className="p-0 sm:p-4">
-                    <Card>
-                      <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
-                        <CardTitle className="text-sm font-medium">Billing by Matter</CardTitle>
-                        <CardDescription>Hours billed and revenue by matter</CardDescription>
-                      </CardHeader>
-                      <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
-                        <div className={`${isMobile ? "h-60" : "h-80"}`}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <RechartBarChart
-                              data={billingByMatter}
-                              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              <TabsContent value="time" className="m-0 overflow-auto">
+                {/* Time Content - Now with the Time Allocation card from Overview */}
+                <CardContent className="p-0 sm:p-4">
+                  <Card>
+                    <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
+                      <CardTitle className="text-sm font-medium">Time Allocation</CardTitle>
+                      <CardDescription>How your time is distributed</CardDescription>
+                    </CardHeader>
+                    <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
+                      <div className={`${isMobile ? "h-72" : "h-80"} flex flex-col items-center justify-center`}>
+                        <ResponsiveContainer width="100%" height="75%">
+                          <PieChart>
+                            <Pie
+                              data={timeAllocation}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              outerRadius={isMobile ? 80 : 100}
+                              fill="#8884d8"
+                              dataKey="value"
                             >
-                              <XAxis dataKey="name" tickFormatter={(value) => value.split(' ')[0]} />
-                              <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                              <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                              <Tooltip content={<CustomTooltip />} />
-                              <Legend />
-                              <Bar yAxisId="left" dataKey="hours" name="Hours" fill="#8884d8" />
-                              <Bar yAxisId="right" dataKey="amount" name="Amount ($)" fill="#82ca9d" />
-                            </RechartBarChart>
-                          </ResponsiveContainer>
+                              {timeAllocation.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => `${value}%`} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        
+                        {/* Redesigned more compact legend */}
+                        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2">
+                          {timeAllocation.map((entry, index) => (
+                            <div key={`legend-${index}`} className="flex items-center">
+                              <div
+                                className="w-3 h-3 mr-1 rounded-sm"
+                                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                              />
+                              <span className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
+                                {entry.name}: {entry.value}%
+                              </span>
+                            </div>
+                          ))}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </CardContent>
-                </TabsContent>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </TabsContent>
 
-                <TabsContent value="time" className="m-0 overflow-auto">
-                   {/* ... Time Content ... */}
-                   <CardContent className="p-0 sm:p-4">
-                    <Card>
-                      <CardHeader className={`${isMobile ? "p-3" : "p-4"}`}>
-                        <CardTitle className="text-sm font-medium">Detailed Time Analysis</CardTitle>
-                        <CardDescription>Comprehensive analysis of billable hours</CardDescription>
-                      </CardHeader>
-                      <CardContent className={`${isMobile ? "p-3" : "p-4"} pt-0`}>
-                        {/* Reduced height slightly for mobile pie chart container for better spacing */}
-                        <div className={`${isMobile ? "h-52" : "h-80"} flex flex-col items-center justify-center`}>
-                          <ResponsiveContainer width="100%" height="80%">
-                            <PieChart>
-                              <Pie
-                                data={timeAllocation}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                outerRadius={isMobile ? 60 : 80} // Kept mobile radius smaller
-                                fill="#8884d8"
-                                dataKey="value"
-                                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                              >
-                                {timeAllocation.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                              </Pie>
-                              <Tooltip />
-                            </PieChart>
-                          </ResponsiveContainer>
-                          {/* Legend below chart */}
-                          <div className="flex justify-center flex-wrap gap-2 mt-4">
-                            {timeAllocation.map((entry, index) => (
-                              <div key={`legend-${index}`} className="flex items-center mx-2 bg-muted/50 px-2 py-1 rounded-md">
-                                <div
-                                  className="w-3 h-3 mr-1 rounded-sm"
-                                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                />
-                                <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>
-                                  {entry.name}: {entry.value}%
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </CardContent>
-                </TabsContent>
-
-                <TabsContent value="custom" className="m-0 overflow-auto">
-                   {/* ... Custom Content ... */}
-                   <CardContent className={`text-center ${isMobile ? "p-4" : "p-8"} text-muted-foreground`}>
-                    <div className="mx-auto max-w-sm">
-                      <LineChart className="mx-auto h-10 w-10 mb-2" />
-                      <h3 className="font-medium">Create Custom Report</h3>
-                      <p className={`${isMobile ? "text-xs" : "text-sm"} mt-1 mb-4`}>
-                        Select parameters and data points to generate a customized report
-                      </p>
-                      <Button className="mx-auto">
-                        <Filter className="mr-2 h-4 w-4" />
-                        Start Report Builder
-                      </Button>
-                    </div>
-                  </CardContent>
-                </TabsContent>
-              </Tabs>
-            </div>
+              <TabsContent value="custom" className="m-0 overflow-auto">
+                {/* ...existing custom content... */}
+                <CardContent className={`text-center ${isMobile ? "p-4" : "p-8"} text-muted-foreground`}>
+                  <div className="mx-auto max-w-sm">
+                    <LineChart className="mx-auto h-10 w-10 mb-2" />
+                    <h3 className="font-medium">Create Custom Report</h3>
+                    <p className={`${isMobile ? "text-xs" : "text-sm"} mt-1 mb-4`}>
+                      Select parameters and data points to generate a customized report
+                    </p>
+                    <Button className="mx-auto">
+                      <Filter className="mr-2 h-4 w-4" />
+                      Start Report Builder
+                    </Button>
+                  </div>
+                </CardContent>
+              </TabsContent>
+            </Tabs>
           </CardHeader>
         </Card>
-        {/* === MODIFIED SECTION END === */}
       </div>
     </Layout>
   );

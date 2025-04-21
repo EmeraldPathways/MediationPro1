@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Define a schema for contact form validation
 const formSchema = z.object({
@@ -31,6 +31,7 @@ interface CreateContactDialogProps {
 
 export function CreateContactDialog({ onCreateContact }: CreateContactDialogProps) {
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile(); // Add the mobile check
   
   // Initialize react-hook-form with zod validation
   const form = useForm<ContactFormValues>({
@@ -66,9 +67,9 @@ export function CreateContactDialog({ onCreateContact }: CreateContactDialogProp
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Contact
+        <Button size={isMobile ? "sm" : "default"} className="flex items-center gap-2 self-start">
+          <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
+          {isMobile ? "Add" : "Add Contact"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

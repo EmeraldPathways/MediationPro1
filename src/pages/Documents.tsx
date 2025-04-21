@@ -186,6 +186,9 @@ const DocumentsPage = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list'); // State for view mode
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false); // State for FAB menu
 
+  // Helper for icon size - matching Settings.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -220,16 +223,6 @@ const DocumentsPage = () => {
   let currentFolders = folders.filter(folder =>
     folder.parentId === (currentFolder ? currentFolder.id : null)
   );
-
-  // Deduplicate folder names in Home view (optional, depending on desired behavior)
-  // if (!currentFolder) {
-  //   const seen = new Set<string>();
-  //   currentFolders = currentFolders.filter(folder => {
-  //     if (seen.has(folder.name)) return false;
-  //     seen.add(folder.name);
-  //     return true;
-  //   });
-  // }
 
   const breadcrumbs = currentFolder ? currentFolder.path : [];
 
@@ -599,28 +592,66 @@ const DocumentsPage = () => {
           </div>
         </div>
 
-        {/* Tabs for Filtering (Optional - keep for now as per user's code) */}
-         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-           <TabsList className={`grid grid-cols-4 ${isMobile ? "w-full text-xs h-8" : "w-[400px]"}`}>
-             <TabsTrigger value="all" className="flex items-center gap-1">
-               <Files className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
-               All
-             </TabsTrigger>
-             <TabsTrigger value="pdf" className="flex items-center gap-1">
-               <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"} text-red-500`} />
-               PDF
-             </TabsTrigger>
-             <TabsTrigger value="docx" className="flex items-center gap-1">
-               <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"} text-blue-500`} />
-               Word
-             </TabsTrigger>
-             <TabsTrigger value="xlsx" className="flex items-center gap-1">
-               <FileText className={`${isMobile ? "h-3 w-3" : "h-4 w-4"} text-green-500`} />
-               Excel
-             </TabsTrigger>
-           </TabsList>
-         </Tabs>
-
+        {/* Tabs for Filtering - Updated to match Settings.tsx styling */}
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className={`
+            grid ${isMobile ? "grid-cols-4" : "grid-cols-4"}
+            w-full
+            h-auto p-1
+            bg-muted rounded-lg
+            gap-1
+            ${!isMobile ? 'md:w-auto md:inline-grid' : ''}
+          `}>
+            <TabsTrigger 
+              value="all" 
+              className={`
+                flex items-center justify-center gap-1.5
+                ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                rounded-md
+                data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+              `}
+            >
+              <Files className={iconSizeClass} />
+              All
+            </TabsTrigger>
+            <TabsTrigger 
+              value="pdf" 
+              className={`
+                flex items-center justify-center gap-1.5
+                ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                rounded-md
+                data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+              `}
+            >
+              <FileText className={`${iconSizeClass} text-red-500`} />
+              PDF
+            </TabsTrigger>
+            <TabsTrigger 
+              value="docx" 
+              className={`
+                flex items-center justify-center gap-1.5
+                ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                rounded-md
+                data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+              `}
+            >
+              <FileText className={`${iconSizeClass} text-blue-500`} />
+              Word
+            </TabsTrigger>
+            <TabsTrigger 
+              value="xlsx" 
+              className={`
+                flex items-center justify-center gap-1.5
+                ${isMobile ? 'text-xs px-2 py-1.5' : 'text-sm px-3 py-1.5'}
+                rounded-md
+                data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm
+              `}
+            >
+              <FileText className={`${iconSizeClass} text-green-500`} />
+              Excel
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* File and Folder List/Grid Area */}
         <Card className="flex-1 overflow-hidden">

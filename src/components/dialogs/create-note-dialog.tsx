@@ -100,7 +100,7 @@ export function CreateNoteDialog({ isOpen, onClose }: CreateNoteDialogProps) {
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-lg">
+      <AlertDialogContent className="max-w-lg mx-auto w-[calc(100%-2rem)]">
         <AlertDialogHeader>
           <AlertDialogTitle>Add New Note</AlertDialogTitle>
         </AlertDialogHeader>
