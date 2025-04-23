@@ -48,57 +48,38 @@ export const TaskItem = ({ task }: TaskItemProps) => {
 
   return (
     <div 
-      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
+      className={`flex flex-col ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
     >
-      <div className="flex items-start">
-        <Checkbox 
-          checked={selectedTasks.includes(task.id)}
-          onCheckedChange={() => toggleSelectTask(task.id)}
-          className="mr-2 mt-1"
-        />
+      {/* Top row: checkbox, task title, and action buttons */}
+      <div className="flex justify-between">
         <div className="flex items-start">
-          <button
-            onClick={() => toggleTaskCompletion(task.id)}
-            className="flex-shrink-0"
-          >
-            <CheckSquare 
-              className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} mt-0.5 ${
-                task.status === "Completed" ? "text-green-500" : "text-gray-400"
-              }`} 
-            />
-          </button>
-          <div className="ml-3">
-            <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium ${
-              task.status === "Completed" ? "line-through text-muted-foreground" : ""
-            }`}>
-              {task.title}
-            </p>
-            <div className="flex items-center text-xs text-muted-foreground space-x-2 mt-1">
-              <Briefcase className={isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} />
-              <span className={isMobile ? "text-[0.65rem]" : "text-xs"}>{task.caseTitle}</span>
-              <span>•</span>
-              <span className={`${getPriorityColor(task.priority)} ${isMobile ? "text-[0.65rem]" : "text-xs"}`}>
-                {task.priority} Priority
-              </span>
+          <Checkbox 
+            checked={selectedTasks.includes(task.id)}
+            onCheckedChange={() => toggleSelectTask(task.id)}
+            className="mr-2 mt-1"
+          />
+          <div className="flex items-start">
+            <button
+              onClick={() => toggleTaskCompletion(task.id)}
+              className="flex-shrink-0"
+            >
+              <CheckSquare 
+                className={`${isMobile ? "h-4 w-4" : "h-5 w-5"} mt-0.5 ${
+                  task.status === "Completed" ? "text-green-500" : "text-gray-400"
+                }`} 
+              />
+            </button>
+            <div className="ml-3">
+              <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium ${
+                task.status === "Completed" ? "line-through text-muted-foreground" : ""
+              }`}>
+                {task.title}
+              </p>
             </div>
           </div>
         </div>
-      </div>
-      <div className={`${isMobile ? "mt-1" : "mt-2"} sm:mt-0 flex flex-wrap items-center justify-between sm:justify-end ml-8 sm:ml-0`}>
-        <div className={`flex items-center ${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mr-4`}>
-          <Calendar className={isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"} />
-          <span>Due: {formatDate(task.dueDate)}</span>
-          <span className="mx-2">•</span>
-          <span className={`${
-            task.status === "Completed" 
-              ? "text-green-500" 
-              : task.status === "In Progress" 
-              ? "text-blue-500" 
-              : "text-amber-500"
-          }`}>
-            {task.status}
-          </span>
-        </div>
+
+        {/* Action buttons */}
         {isMobile ? (
           <div className="flex items-center space-x-0">
             <Button 
@@ -205,6 +186,42 @@ export const TaskItem = ({ task }: TaskItemProps) => {
             </AlertDialog>
           </div>
         )}
+      </div>
+
+      {/* Metadata row: all information stacked together under the task title */}
+      <div className="ml-11 mt-1">
+        <div className="flex flex-wrap items-center text-xs text-muted-foreground">
+          <div className="flex items-center mr-3">
+            <Calendar className={isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"} />
+            <span className={isMobile ? "text-[0.65rem]" : "text-xs"}>Due: {formatDate(task.dueDate)}</span>
+          </div>
+          
+          <div className="flex items-center mr-3">
+            <span className="mr-1">•</span>
+            <span className={`${
+              task.status === "Completed" 
+                ? "text-green-500" 
+                : task.status === "In Progress" 
+                ? "text-blue-500" 
+                : "text-amber-500"
+            } ${isMobile ? "text-[0.65rem]" : "text-xs"}`}>
+              {task.status}
+            </span>
+          </div>
+          
+          <div className="flex items-center mr-3">
+            <span className="mr-1">•</span>
+            <Briefcase className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
+            <span className={isMobile ? "text-[0.65rem]" : "text-xs"}>{task.caseTitle}</span>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="mr-1">•</span>
+            <span className={`${getPriorityColor(task.priority)} ${isMobile ? "text-[0.65rem]" : "text-xs"}`}>
+              {task.priority} Priority
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

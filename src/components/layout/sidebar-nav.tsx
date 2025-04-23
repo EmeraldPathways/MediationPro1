@@ -18,6 +18,7 @@ import {
   X,
   MessageSquare,
   Clock,
+  ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -37,9 +38,19 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
+    title: "Case Files",
+    href: "/case-files",
+    icon: Briefcase,
+  },
+  {
     title: "Calendar",
     href: "/calendar",
     icon: Calendar,
+  },
+  {
+    title: "Contacts",
+    href: "/contacts",
+    icon: Users,
   },
   {
     title: "Email",
@@ -52,21 +63,6 @@ const navItems: NavItem[] = [
     icon: CheckSquare,
   },
   {
-    title: "Case Files",
-    href: "/case-files",
-    icon: Briefcase,
-  },
-  {
-    title: "Contacts",
-    href: "/contacts",
-    icon: Users,
-  },
-  {
-    title: "Billing",
-    href: "/billing",
-    icon: CreditCard,
-  },
-  {
     title: "Documents",
     href: "/documents",
     icon: HardDrive,
@@ -75,6 +71,16 @@ const navItems: NavItem[] = [
     title: "Templates",
     href: "/templates",
     icon: FileOutput,
+  },
+  {
+    title: "Forms",
+    href: "/forms",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Billing",
+    href: "/billing",
+    icon: CreditCard,
   },
   {
     title: "Reports",

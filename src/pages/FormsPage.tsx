@@ -66,17 +66,16 @@ const availableForms = [
 const FormsPage = () => {
   const { id: caseId } = useParams<{ id: string }>();
   const [matter, setMatter] = useState<Matter | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(caseId ? true : false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("all");
   const [currentForm, setCurrentForm] = useState<any>(null);
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    // Only attempt to load matter if caseId is provided
     const loadMatter = async () => {
       if (!caseId) {
-        setError("No case ID provided.");
-        setIsLoading(false);
         return;
       }
       
@@ -157,7 +156,8 @@ const FormsPage = () => {
     return <Layout><div className="p-4 md:p-6">Loading forms...</div></Layout>;
   }
 
-  if (error || !matter) {
+  // If a specific case was requested but couldn't be loaded, show error
+  if (caseId && (error || !matter)) {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-full p-4 md:p-6">
@@ -176,20 +176,33 @@ const FormsPage = () => {
   return (
     <Layout>
       <div className={`flex flex-col ${isMobile ? "space-y-4" : "space-y-6"} p-4 md:p-6`}>
-        {/* Header with back button */}
+        {/* Header - show different content based on whether we're in a case context or not */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 md:space-x-4">
-            <Button variant="outline" size="icon" asChild>
-              <Link to="/case-files">
-                <ChevronLeft className={iconSizeClass} />
-              </Link>
-            </Button>
-            <div>
-              <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Forms</h1>
-              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
-                {matter.title} • {matter.caseFileNumber || matter.id}
+            {caseId ? (
+              <>
+                <Button variant="outline" size="icon" asChild>
+                  <Link to="/case-files">
+                    <ChevronLeft className={iconSizeClass} />
+                  </Link>
+                </Button>
+                <div>
+                  <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Forms</h1>
+                  {matter && (
+                    <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
+                      {matter.title} • {matter.caseFileNumber || matter.id}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div>
+                <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Forms</h1>
+                <p className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>
+                  Manage all legal and client forms
+                </p>
               </div>
-            </div>
+            )}
           </div>
           <Button size={isMobile ? "sm" : "default"}>
             <Plus className={`${iconSizeClass} mr-1.5`} />

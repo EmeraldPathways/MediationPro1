@@ -288,40 +288,47 @@ const ContactsPage = () => {
                           filteredContacts.map((contact) => (
                             <div
                               key={contact.id}
-                              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
+                              className={`${isMobile ? "p-2" : "p-4"} hover:bg-muted/50 transition-colors`}
                             >
-                              <div className="flex items-center">
-                                <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} rounded-full bg-primary/10 flex items-center justify-center text-primary`}>
-                                  <User className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
-                                </div>
-                                <div className="ml-3 min-w-0">
-                                  <p className={`${isMobile ? "text-xs" : "text-sm"} font-medium truncate`}>{contact.name}</p>
-                                  <div className="flex items-center text-xs text-muted-foreground mt-1">
-                                    <div className="flex items-center">
-                                      <Mail className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
-                                      <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.email}</span>
-                                    </div>
-                                    <span className="mx-2">•</span>
-                                    <div className="flex items-center">
-                                      <Phone className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
-                                      <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.phone || 'N/A'}</span>
-                                    </div>
+                              {/* First line: Contact name and edit button */}
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center min-w-0">
+                                  <div className={`${isMobile ? "h-8 w-8" : "h-10 w-10"} flex-shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3`}>
+                                    <User className={`${isMobile ? "h-4 w-4" : "h-5 w-5"}`} />
                                   </div>
+                                  <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium truncate`}>{contact.name}</span>
+                                </div>
+                                <div className="flex-shrink-0">
+                                  <EditContactDialog
+                                    contact={contact as ContactFormValues}
+                                    availableCaseFileNumbers={matters.map(m => m.caseFileNumber)}
+                                    onUpdateContact={handleUpdateContact}
+                                    onDelete={() => handleDeleteContact(contact.id)}
+                                  />
                                 </div>
                               </div>
-                              <div className={`${isMobile ? "mt-1" : "mt-2"} sm:mt-0 flex items-center flex-wrap text-xs text-muted-foreground ml-11 sm:ml-0`}>
-                                <div className="flex items-center mr-4">
-                                  <Building className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
-                                  <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.company || 'N/A'}</span>
+                              
+                              {/* Second line: All other contact details */}
+                              <div className="ml-11 flex flex-wrap items-center gap-x-2 text-muted-foreground">
+                                <div className="flex items-center">
+                                  <Mail className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-0.5"}`} />
+                                  <span className={`${isMobile ? "text-[0.65rem]" : "text-xs"} truncate max-w-[120px] sm:max-w-[150px]`}>{contact.email}</span>
                                 </div>
-                                <div className="flex items-center mr-4">
-                                  <Users className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"}`} />
-                                  <span className={isMobile ? "text-[0.65rem]" : ""}>{contact.type || 'N/A'}</span>
+                                <span>•</span>
+                                <div className="flex items-center">
+                                  <Phone className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-0.5"}`} />
+                                  <span className={`${isMobile ? "text-[0.65rem]" : "text-xs"}`}>{contact.phone || 'N/A'}</span>
+                                </div>
+                                <span>•</span>
+                                <div className="flex items-center">
+                                  <Users className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-0.5"}`} />
+                                  <span className={`${isMobile ? "text-[0.65rem]" : "text-xs"}`}>{contact.type || 'N/A'}</span>
                                 </div>
                                 {contact.caseFileNumbers && contact.caseFileNumbers.length > 0 && (
-                                  <div className="flex items-center mr-2 space-x-1">
-                                    <Briefcase className={`${isMobile ? "h-2.5 w-2.5 mr-0.5" : "h-3 w-3 mr-1"} flex-shrink-0`} />
-                                    <div className="flex flex-wrap gap-x-1 gap-y-1">
+                                  <>
+                                    <span>•</span>
+                                    <div className="flex items-center space-x-1">
+                                      <Briefcase className={`${isMobile ? "h-2.5 w-2.5" : "h-3 w-3"} flex-shrink-0`} />
                                       {contact.caseFileNumbers.map((cfNumber, index) => {
                                         const matter = matters.find(m => m.caseFileNumber === cfNumber);
                                         return matter ? (
@@ -334,22 +341,14 @@ const ContactsPage = () => {
                                             {cfNumber}
                                           </Link>
                                         ) : (
-                                          <span key={`${cfNumber}-${index}`} className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground`} title="Case file not found">
+                                          <span key={`${cfNumber}-${index}`} className={`${isMobile ? "text-[0.65rem]" : "text-xs"}`} title="Case file not found">
                                             {cfNumber}
                                           </span>
                                         );
                                       })}
                                     </div>
-                                  </div>
+                                  </>
                                 )}
-                                <div className="ml-auto">
-                                  <EditContactDialog
-                                    contact={contact as ContactFormValues}
-                                    availableCaseFileNumbers={matters.map(m => m.caseFileNumber)}
-                                    onUpdateContact={handleUpdateContact}
-                                    onDelete={() => handleDeleteContact(contact.id)}
-                                  />
-                                </div>
                               </div>
                             </div>
                           ))

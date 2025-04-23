@@ -1,6 +1,8 @@
 import { Layout } from "@/components/layout/layout";
 import { UpcomingMediations } from "@/components/dashboard/upcoming-mediations";
 import { QuickActions } from "@/components/dashboard/quick-actions";
+import { WeeklyTasksSummary } from "@/components/dashboard/weekly-tasks-summary";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, CheckSquare, Info, Mail } from "lucide-react";
@@ -25,6 +27,11 @@ const Dashboard = () => {
         <div className={`grid gap-${isMobile ? "4" : "6"} md:grid-cols-2`}>
           <QuickActions />
           <UpcomingMediations />
+        </div>
+        
+        <div className={`grid gap-${isMobile ? "4" : "6"} md:grid-cols-2`}>
+          <RecentActivity />
+          <WeeklyTasksSummary />
         </div>
       </div>
     </Layout>

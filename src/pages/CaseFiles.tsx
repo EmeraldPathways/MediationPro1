@@ -152,7 +152,7 @@ const CaseFilesPage = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMatters, setSelectedMatters] = useState<string[]>([]);
-  const [selectedMatterDetailId, setSelectedMatterDetailId] = useState<string | null>(null);
+  const [selectedMatterDetailId, setSelectedMatterDetailId] = useState<string | null>("case-1"); // Initialize with "case-1" to open Smith vs. Johnson by default
   const [notes, setNotes] = useState<any[]>([]);
 
   useEffect(() => {
@@ -426,7 +426,7 @@ const CaseFilesPage = () => {
                             <div className="ml-2 sm:ml-3 flex-grow">
                                <span 
                                  onClick={() => toggleMatterDetails(matter.id)} 
-                                 className={`${isMobile ? "text-xs" : "text-sm"} font-medium hover:underline cursor-pointer`}
+                                 className={`${isMobile ? "text-xs" : "text-base"} font-medium hover:underline cursor-pointer text-blue-600`}
                                >
                                 {matter.title || "Untitled Matter"}
                                </span>

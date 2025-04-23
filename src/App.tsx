@@ -63,6 +63,7 @@ const App = () => (
           <Route path="/notes/new" element={<NewNotePage />} />
           <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/storage" element={<StoragePage />} />
+          <Route path="/forms" element={<FormsPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

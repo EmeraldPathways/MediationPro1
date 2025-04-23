@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,6 +18,31 @@ export default {
 			}
 		},
 		extend: {
+			// Custom font size system
+			fontSize: {
+				'xs': ['0.75rem', { lineHeight: '1rem' }],        // 12px
+				'sm': ['0.875rem', { lineHeight: '1.25rem' }],    // 14px
+				'base': ['1rem', { lineHeight: '1.5rem' }],       // 16px
+				'lg': ['1.125rem', { lineHeight: '1.75rem' }],    // 18px
+				'xl': ['1.25rem', { lineHeight: '1.75rem' }],     // 20px
+				'2xl': ['1.5rem', { lineHeight: '2rem' }],        // 24px
+				'3xl': ['1.875rem', { lineHeight: '2.25rem' }],   // 30px
+				// Mobile specific sizes
+				'mobile-xs': ['0.65rem', { lineHeight: '0.875rem' }],  // 10.4px
+				'mobile-sm': ['0.75rem', { lineHeight: '1rem' }],      // 12px
+				'mobile-base': ['0.875rem', { lineHeight: '1.25rem' }] // 14px
+			},
+			// Custom spacing system
+			spacing: {
+				'icon-xs': '0.75rem',    // 12px - Extra small icons
+				'icon-sm': '1rem',       // 16px - Small icons
+				'icon-md': '1.25rem',    // 20px - Medium icons
+				'icon-lg': '1.5rem',     // 24px - Large icons
+				'mobile-1': '0.25rem',   // 4px
+				'mobile-2': '0.5rem',    // 8px
+				'mobile-3': '0.75rem',   // 12px
+				'mobile-4': '1rem',      // 16px
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -84,20 +108,12 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
 				}
 			},
 			animation: {

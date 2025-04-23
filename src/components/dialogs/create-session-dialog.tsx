@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Picker from "react-mobile-picker";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -144,14 +142,14 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
   if (!isOpen) return null;
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-2xl mx-auto w-[calc(100%-2rem)]">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Schedule New Session</AlertDialogTitle>
-          <AlertDialogDescription>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl mx-auto w-[calc(100%-2rem)]">
+        <DialogHeader>
+          <DialogTitle>Schedule New Session</DialogTitle>
+          <DialogDescription>
             Fill in the details for the new mediation session.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+          </DialogDescription>
+        </DialogHeader>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 py-2">
@@ -163,7 +161,10 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                   <FormItem>
                     <FormLabel>Session Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter session title" {...field} />
+                      <Input 
+                        placeholder="Enter session title" 
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -234,45 +235,20 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Select a date</span>
-                            )}
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 max-h-80 overflow-y-auto scroll-smooth" align="start">
-                        <div className="flex justify-center gap-4 p-4 h-40 overflow-hidden border rounded-md bg-white">
-                          <Picker
-                            value={pickerValue}
-                            onChange={(val) => {
-                              setPickerValue(val);
-                              const year = parseInt(val.year, 10);
-                              const month = parseInt(val.month, 10) - 1;
-                              const day = parseInt(val.day, 10);
-                              const tempDate = new Date(year, month, day);
-                              if (tempDate.getFullYear() === year && tempDate.getMonth() === month && tempDate.getDate() === day) {
-                                field.onChange(tempDate);
-                              } else {
-                                console.warn("Invalid date selected", val);
-                              }
-                            }}
-                            options={{
-                              year: years,
-                              month: months,
-                              day: days,
-                            }}
-                            height={160}
-                            itemHeight={40}
-                            className="flex gap-4 w-full"
-                            wheelClassName="flex-1 flex flex-col items-center overflow-hidden border-x border-gray-200"
-                            itemClassName="text-center py-2 text-base text-gray-700"
-                            indicatorClassName="border-t-2 border-b-2 border-primary"
-                            indicatorTop={60}
-                            indicatorHeight={40}
-                          />
-                        </div>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date(new Date().setDate(new Date().getDate() - 1))
+                          }
+                          initialFocus
+                        />
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -311,13 +287,13 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
               </div>
             </div>
             
-            <AlertDialogFooter className="pt-4">
-              <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
               <Button type="submit">Schedule Session</Button>
-            </AlertDialogFooter>
+            </DialogFooter>
           </form>
         </Form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
