@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Clock,
   ClipboardCheck,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -76,6 +77,11 @@ const navItems: NavItem[] = [
     title: "Forms",
     href: "/forms",
     icon: ClipboardCheck,
+  },
+  {
+    title: "Guides",
+    href: "/guides",
+    icon: BookOpen,
   },
   {
     title: "Billing",

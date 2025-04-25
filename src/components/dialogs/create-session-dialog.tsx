@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
-import Picker from "react-mobile-picker";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -13,19 +10,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Phone, Video, Users, Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,43 +39,37 @@ import {
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  title: z.string().min(3, { message: "Session title is required" }),
+  title: z.string().min(1, { message: "Session title is required" }),
   date: z.date({
     required_error: "Session date is required",
   }),
-  startTime: z.string().min(1, { message: "Start time is required" }),
-  endTime: z.string().min(1, { message: "End time is required" }),
-  sessionType: z.string().min(1, { message: "Session type is required" }),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)" }),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: "Invalid time format (HH:mm)" }),
+  sessionType: z.enum(["Phone Call", "Video Call", "Meeting"], {
+    required_error: "Session type is required",
+  }),
+  notes: z.string().optional(),
 });
 
 interface CreateSessionDialogProps {
   isOpen: boolean;
   onClose: () => void;
   initialDate?: Date;
+  onAddSession: (session: z.infer<typeof formSchema>) => void;
 }
 
-export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSessionDialogProps) {
-  const navigate = useNavigate();
+export function CreateSessionDialog({ isOpen, onClose, initialDate, onAddSession }: CreateSessionDialogProps) {
   const isMobile = useIsMobile();
-  const currentDate = new Date();
-  const years = Array.from({ length: 50 }, (_, i) => `${currentDate.getFullYear() - 25 + i}`);
-  const months = Array.from({ length: 12 }, (_, i) => `${i + 1}`);
-  const days = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
-
-  const [pickerValue, setPickerValue] = useState({
-    year: `${initialDate?.getFullYear() || currentDate.getFullYear()}`,
-    month: `${(initialDate?.getMonth() || currentDate.getMonth()) + 1}`,
-    day: `${initialDate?.getDate() || currentDate.getDate()}`
-  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      date: initialDate || undefined,
+      date: initialDate || new Date(),
       startTime: "09:00",
       endTime: "10:00",
       sessionType: "Meeting",
+      notes: "",
     },
   });
 
@@ -88,23 +77,16 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
     if (isOpen) {
       form.reset({
         title: "",
-        date: initialDate || undefined,
+        date: initialDate || new Date(),
         startTime: "09:00",
         endTime: "10:00",
         sessionType: "Meeting",
-      });
-      const dateToUse = initialDate || currentDate;
-      setPickerValue({
-        year: `${dateToUse.getFullYear()}`,
-        month: `${dateToUse.getMonth() + 1}`,
-        day: `${dateToUse.getDate()}`
+        notes: "",
       });
     }
-  }, [isOpen, initialDate, form, currentDate]);
+  }, [isOpen, initialDate, form]);
 
-  const sessionType = form.watch("sessionType");
-
-  const getSessionTypeIcon = (type: string) => {
+  const getSessionTypeIcon = (type: z.infer<typeof formSchema>['sessionType']) => {
     switch (type) {
       case "Phone Call": return <Phone className="h-4 w-4 text-blue-500" />;
       case "Video Call": return <Video className="h-4 w-4 text-purple-500" />;
@@ -115,108 +97,118 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("Form data submitted from dialog:", data);
-    try {
-      const existingSessionsRaw = localStorage.getItem("sessions");
-      const existingSessions = existingSessionsRaw ? JSON.parse(existingSessionsRaw) : [];
-      const newSessionWithId = { ...data, id: crypto.randomUUID(), date: data.date.toISOString() }; 
-      existingSessions.push(newSessionWithId);
-      localStorage.setItem("sessions", JSON.stringify(existingSessions));
+    // Validate end time is after start time
+    const [startHour, startMinute] = data.startTime.split(':').map(Number);
+    const [endHour, endMinute] = data.endTime.split(':').map(Number);
+    const startDate = new Date(data.date);
+    startDate.setHours(startHour, startMinute);
+    const endDate = new Date(data.date);
+    endDate.setHours(endHour, endMinute);
 
+    if (endDate <= startDate) {
+      form.setError("endTime", {
+        type: "manual",
+        message: "End time must be after start time",
+      });
+      return;
+    }
+
+    try {
+      // Pass only the required fields and notes
+      onAddSession({
+        title: data.title,
+        date: data.date, // Pass Date object
+        startTime: data.startTime,
+        endTime: data.endTime,
+        sessionType: data.sessionType,
+        notes: data.notes,
+      });
       toast({
         title: "Session scheduled",
         description: `${data.title} (${data.sessionType}) scheduled for ${format(data.date, "PPP")}`,
       });
-      
       onClose();
-
     } catch (error) {
-      console.error("Failed to save session to localStorage:", error);
+      console.error("Failed to add session:", error);
       toast({
         title: "Error",
-        description: "Failed to save session locally. Please try again.",
+        description: "Failed to schedule session. Please try again.",
         variant: "destructive",
       });
     }
   };
-
-  if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl mx-auto w-[calc(100%-2rem)]">
         <DialogHeader>
           <DialogTitle>Schedule New Session</DialogTitle>
-          <DialogDescription>
-            Fill in the details for the new mediation session.
-          </DialogDescription>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 py-2">
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Session Title</FormLabel>
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Session Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter session title"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="sessionType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Session Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter session title" 
-                        {...field}
-                      />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select session type">
+                          {field.value && (
+                            <div className="flex items-center gap-2">
+                              {getSessionTypeIcon(field.value)}
+                              <span>{field.value}</span>
+                            </div>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="sessionType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Session Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select session type">
-                            {field.value && (
-                              <div className="flex items-center gap-2">
-                                {getSessionTypeIcon(field.value)}
-                                <span>{field.value}</span>
-                              </div>
-                            )}
-                          </SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Phone Call">
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-blue-500" />
-                            <span>Phone Call</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Video Call">
-                          <div className="flex items-center gap-2">
-                            <Video className="h-4 w-4 text-purple-500" />
-                            <span>Video Call</span>
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Meeting">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-green-500" />
-                            <span>Meeting</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
+                    <SelectContent>
+                      <SelectItem value="Phone Call">
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-blue-500" />
+                          <span>Phone Call</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="Video Call">
+                        <div className="flex items-center gap-2">
+                          <Video className="h-4 w-4 text-purple-500" />
+                          <span>Video Call</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="Meeting">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-green-500" />
+                          <span>Meeting</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -239,7 +231,7 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent className="w-80 p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value}
@@ -255,7 +247,7 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                   </FormItem>
                 )}
               />
-              
+
               <div className="grid gap-4 grid-cols-2">
                 <FormField
                   control={form.control}
@@ -270,7 +262,7 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="endTime"
@@ -286,7 +278,24 @@ export function CreateSessionDialog({ isOpen, onClose, initialDate }: CreateSess
                 />
               </div>
             </div>
-            
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter notes"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
               <Button type="submit">Schedule Session</Button>

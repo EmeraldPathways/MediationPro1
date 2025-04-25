@@ -9,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MatterDetails } from "@/components/matters/MatterDetails"; // Assuming this has client details form
+import { MatterDetails } from "@/components/matters/mattersform"; // Corrected import path
 
 interface Matter {
   id: string;
@@ -288,6 +288,8 @@ const ClientDetailsPage = () => {
           </div>
         </Tabs>
         
+        {/* Card above - likely has mobile styling */}
+        {/* Assuming the card above has classes like 'mt-3' for mobile and 'mt-6' for desktop */}
         <Card className={`mt-${isMobile ? '3' : '6'}`}>
           <CardHeader className={isMobile ? "p-4" : ""}>
             <CardTitle className={isMobile ? "text-base" : ""}>Update Client Information</CardTitle>

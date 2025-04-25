@@ -6,6 +6,12 @@ import { FileOutput, Search, Plus, Clock, Filter, Download, FileText, Files, Boo
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
+import { StatementOfMeansBuilder } from "@/components/templates/StatementofMeans";
+import { MediationAgreementBuilder } from "@/components/templates/MediationAgreement";
+import { ParentingAgreementBuilder } from "@/components/templates/ParentingAgreement";
+import { TemplateBuilder } from "@/components/templates/TemplateBuilder";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Mock data for document templates
 const allTemplates = [
@@ -17,39 +23,18 @@ const allTemplates = [
     description: "Standard agreement outlining mediation process, confidentiality terms, and mediator role.",
   },
   {
-    id: 2,
-    title: "Settlement Agreement",
-    category: "agreement",
-    lastUsed: "2023-05-22T10:15:00",
-    description: "Comprehensive template for documenting final settlement terms between parties.",
-  },
-  {
-    id: 3,
-    title: "Intake Form",
-    category: "intake",
-    lastUsed: "2023-06-05T09:30:00",
-    description: "Client information collection form including conflict check and case details.",
-  },
-  {
-    id: 4,
-    title: "Confidentiality Agreement",
-    category: "confidentiality",
-    lastUsed: "2023-05-30T14:45:00",
-    description: "Standard NDA for all parties participating in the mediation process.",
-  },
-  {
-    id: 5,
-    title: "Meeting Agenda",
-    category: "process",
-    lastUsed: "2023-06-08T13:00:00",
-    description: "Structured agenda template for mediation sessions with timing guidelines.",
-  },
-  {
-    id: 6,
-    title: "Property Division Worksheet",
+    id: 7,
+    title: "Statement of Means",
     category: "worksheet",
-    lastUsed: "2023-05-18T11:30:00",
-    description: "Form for cataloging and valuing assets to be divided between parties.",
+    lastUsed: "2023-06-15T16:45:00",
+    description: "Financial disclosure form documenting income, expenses, assets, and liabilities of parties.",
+  },
+  {
+    id: 8,
+    title: "Parenting Agreement",
+    category: "agreement",
+    lastUsed: "2023-06-20T14:30:00",
+    description: "Comprehensive agreement establishing co-parenting arrangements, schedules, and responsibilities for children's welfare.",
   },
 ];
 
@@ -57,6 +42,14 @@ const TemplatesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+  const [mediationAgreementOpen, setMediationAgreementOpen] = useState(false);
+  const [parentingAgreementOpen, setParentingAgreementOpen] = useState(false);
+  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(false);
+  const [statementOfMeansData, setStatementOfMeansData] = useState(null);
+  const [mediationAgreementData, setMediationAgreementData] = useState(null);
+  const [parentingAgreementData, setParentingAgreementData] = useState(null);
+  const navigate = useNavigate();
 
   // Helper for icon size - matching Settings.tsx
   const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
@@ -125,6 +118,7 @@ const TemplatesPage = () => {
             <Button
               size={isMobile ? "sm" : "default"}
               className="flex items-center gap-2"
+              onClick={() => setTemplateBuilderOpen(true)}
             >
               <Plus className={`${isMobile ? "h-3 w-3" : "h-4 w-4"}`} />
               New Template
@@ -239,7 +233,20 @@ const TemplatesPage = () => {
                    <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-0 sm:p-4">
                       {filteredTemplates.length > 0 ? (
                         filteredTemplates.map((template) => (
-                          <Card key={template.id} className="overflow-hidden hover:border-primary/50 transition-colors">
+                          <Card key={template.id} className="overflow-hidden hover:border-primary/50 transition-colors" onClick={() => {
+                            if (template.id === 7) { // Statement of Means
+                              setOpen(true);
+                              setStatementOfMeansData(template);
+                            } else if (template.id === 1) { // Mediation Agreement
+                              setMediationAgreementOpen(true);
+                              setMediationAgreementData(template);
+                            } else if (template.id === 8) { // Parenting Agreement
+                              setParentingAgreementOpen(true);
+                              setParentingAgreementData(template);
+                            } else {
+                              navigate(`/templates/${template.id}`); // Navigate to a detailed view or editor for the template
+                            }
+                          }}>
                             <CardHeader className={`${isMobile ? "p-3" : "p-4"} bg-muted/50`}>
                               <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2">
@@ -293,6 +300,46 @@ const TemplatesPage = () => {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Dialog for Statement of Means - Making it larger to fit the complex form */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Statement of Means Builder</DialogTitle>
+          </DialogHeader>
+          <StatementOfMeansBuilder />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Mediation Agreement */}
+      <Dialog open={mediationAgreementOpen} onOpenChange={setMediationAgreementOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Mediation Agreement Builder</DialogTitle>
+          </DialogHeader>
+          <MediationAgreementBuilder />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Parenting Agreement */}
+      <Dialog open={parentingAgreementOpen} onOpenChange={setParentingAgreementOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Parenting Agreement Builder</DialogTitle>
+          </DialogHeader>
+          <ParentingAgreementBuilder />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for New Template Builder */}
+      <Dialog open={templateBuilderOpen} onOpenChange={setTemplateBuilderOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Template</DialogTitle>
+          </DialogHeader>
+          <TemplateBuilder />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

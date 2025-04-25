@@ -26,6 +26,10 @@ import BillingPage from "./pages/Billing";
 import DocumentsPage from "./pages/Documents";
 import ReportsPage from "./pages/Reports";
 import SettingsPage from "./pages/Settings";
+import GuidesPage from "./pages/GuidesPage"; // Import GuidesPage
+import { MediationAgreementBuilder } from "./pages/MediationTemplate2"; // Import MediationAgreementBuilder component
+import { ParentingAgreementBuilder } from "./pages/ParentingTemplate2"; // Import ParentingAgreementBuilder component
+import { SeparationAgreementBuilder } from "./pages/SeperationTemplate2"; // Import SeparationAgreementBuilder component
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +68,11 @@ const App = () => (
           <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/storage" element={<StoragePage />} />
           <Route path="/forms" element={<FormsPage />} />
+          <Route path="/activities" element={<GuidesPage />} /> {/* Placeholder for Activities page */}
+          <Route path="/guides" element={<GuidesPage />} /> {/* Add route for GuidesPage */}
+          <Route path="/mediation-template" element={<MediationAgreementBuilder />} /> {/* Add route for MediationAgreementBuilder */}
+          <Route path="/parenting-template" element={<ParentingAgreementBuilder />} /> {/* Add route for ParentingAgreementBuilder */}
+          <Route path="/separation-template" element={<SeparationAgreementBuilder />} /> {/* Add route for SeparationAgreementBuilder */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

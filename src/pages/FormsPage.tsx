@@ -15,6 +15,8 @@ import { ClientEnquiryForm } from "@/components/forms/ClientEnquiryForm";
 import { BillingForm } from "@/components/forms/BillingForm";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { TemplateBuilder } from "@/components/forms/FormBuilder";
 
 interface Matter {
   id: string;
@@ -71,6 +73,7 @@ const FormsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [currentForm, setCurrentForm] = useState<any>(null);
   const isMobile = useIsMobile();
+  const [formBuilderOpen, setFormBuilderOpen] = useState(false);
 
   useEffect(() => {
     // Only attempt to load matter if caseId is provided
@@ -204,7 +207,7 @@ const FormsPage = () => {
               </div>
             )}
           </div>
-          <Button size={isMobile ? "sm" : "default"}>
+          <Button size={isMobile ? "sm" : "default"} onClick={() => setFormBuilderOpen(true)}>
             <Plus className={`${iconSizeClass} mr-1.5`} />
             {isMobile ? "New" : "New Form"}
           </Button>
@@ -411,6 +414,16 @@ const FormsPage = () => {
           </>
         )}
       </div>
+
+      {/* Form Builder Dialog */}
+      <Dialog open={formBuilderOpen} onOpenChange={setFormBuilderOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Form</DialogTitle>
+          </DialogHeader>
+          <TemplateBuilder />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
