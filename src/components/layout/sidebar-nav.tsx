@@ -20,6 +20,7 @@ import {
   Clock,
   ClipboardCheck,
   BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -97,6 +98,11 @@ const navItems: NavItem[] = [
     title: "Settings",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    title: "Admin",
+    href: "/admin",
+    icon: ShieldCheck,
   },
 ];
 

@@ -5,20 +5,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Index";
 import CalendarPage from "./pages/Calendar";
-import Email from "./pages/Email"; // Add import for Email
+import Email from "./pages/Email";
 import NewSessionPage from "./pages/NewSession";
 import NotesPage from "./pages/Notes";
 import NewNotePage from "./pages/NewNote";
-import TemplatesPage from "./pages/Templates";
+import TemplatesPage from "./pages/templates/Templates";
 import StoragePage from "./pages/Storage";
-import CaseFilesPage from "./pages/CaseFiles";
-import CaseDetailPage from "./pages/CaseDetail";
-import CaseFileSummaryPage from "./pages/CaseFileSummary"; // Import CaseFileSummaryPage
-import ChecklistPage from "./pages/ChecklistPage"; // Import the new page
-import FormsPage from "./pages/FormsPage"; // Import FormsPage
-import TimelinePage from "./pages/TimelinePage"; // Import TimelinePage
-import MeetingsPage from "./pages/MeetingsPage"; // Import MeetingsPage
-import ClientDetailsPage from "./pages/ClientDetailsPage"; // Import ClientDetailsPage
+import CaseFilesPage from "./pages/cases/CaseFiles";
+import CaseDetailPage from "./pages/cases/CaseDetail";
+import CaseFileSummaryPage from "./pages/cases/CaseFileSummary";
+import ChecklistPage from "./pages/cases/ChecklistPage";
+import FormsPage from "./pages/FormsPage";
+import TimelinePage from "./pages/cases/TimelinePage";
+import MeetingsPage from "./pages/cases/MeetingsPage";
+import ClientDetailsPage from "./pages/cases/ClientDetailsPage";
 import TasksPage from "./pages/Tasks";
 import MeetingNotesPage from "./pages/MeetingNotes";
 import ContactsPage from "./pages/Contacts";
@@ -26,11 +26,36 @@ import BillingPage from "./pages/Billing";
 import DocumentsPage from "./pages/Documents";
 import ReportsPage from "./pages/Reports";
 import SettingsPage from "./pages/Settings";
-import GuidesPage from "./pages/GuidesPage"; // Import GuidesPage
-import { MediationAgreementBuilder } from "./pages/MediationTemplate2"; // Import MediationAgreementBuilder component
-import { ParentingAgreementBuilder } from "./pages/ParentingTemplate2"; // Import ParentingAgreementBuilder component
-import { SeparationAgreementBuilder } from "./pages/SeperationTemplate2"; // Import SeparationAgreementBuilder component
+import GuidesPage from "./pages/guides/GuidesPage";
+import { MediationAgreementBuilder } from "./pages/agreements/MediationAgreement";
+import { ParentingAgreementBuilder } from "./pages/agreements/ParentingAgreement";
+import { SeparationAgreementBuilder } from "./pages/agreements/SeperationAgreement";
 import NotFound from "./pages/NotFound";
+
+// Admin section imports
+import AdminLayout from "./components/layout/admin/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import UserManagementPage from "./pages/admin/UserManagementPage";
+import RolesPermissionsPage from "./pages/admin/RolesPermissionsPage";
+import InvitationsPage from "./pages/admin/InvitationsPage";
+import AllCasesListPage from "./pages/admin/AllCasesListPage";
+import DataImportExportPage from "./pages/admin/DataImportExportPage";
+import DocumentTemplatesPage from "./pages/admin/DocumentTemplatesPage";
+import GuidesManagementPage from "./pages/admin/GuidesManagementPage";
+import EmailTemplatesPage from "./pages/admin/EmailTemplatesPage";
+import BrandingPage from "./pages/admin/BrandingPage";
+import FeatureFlagsPage from "./pages/admin/FeatureFlagsPage";
+import AuditLogPage from "./pages/admin/AuditLogPage";
+import ErrorLogPage from "./pages/admin/ErrorLogPage";
+import SystemStatusPage from "./pages/admin/SystemStatusPage";
+import PlanManagementPage from "./pages/admin/PlanManagementPage";
+import SubscriptionOverviewPage from "./pages/admin/SubscriptionOverviewPage";
+import InvoiceManagementPage from "./pages/admin/InvoiceManagementPage";
+import StripeSettingsPage from "./pages/admin/StripeSettingsPage";
+import MetricsPage from "./pages/admin/MetricsPage";
+import HubspotPage from "./pages/admin/HubspotPage";
+import OpenAIPage from "./pages/admin/OpenAIPage";
+import AdminSettingsPage from "./pages/admin/SettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +66,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Main app routes */}
           <Route path="/" element={<Dashboard />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/email" element={<Email />} /> {/* Add route for Email */}
@@ -73,7 +99,47 @@ const App = () => (
           <Route path="/mediation-template" element={<MediationAgreementBuilder />} /> {/* Add route for MediationAgreementBuilder */}
           <Route path="/parenting-template" element={<ParentingAgreementBuilder />} /> {/* Add route for ParentingAgreementBuilder */}
           <Route path="/separation-template" element={<SeparationAgreementBuilder />} /> {/* Add route for SeparationAgreementBuilder */}
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Admin routes with AdminLayout */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            
+            {/* User Management */}
+            <Route path="users" element={<UserManagementPage />} />
+            <Route path="users/roles" element={<RolesPermissionsPage />} />
+            <Route path="users/invitations" element={<InvitationsPage />} />
+            
+            {/* Case/Data Oversight */}
+            <Route path="cases/all" element={<AllCasesListPage />} />
+            <Route path="data/import-export" element={<DataImportExportPage />} />
+            
+            {/* Content & Configuration */}
+            <Route path="content/document-templates" element={<DocumentTemplatesPage />} />
+            <Route path="content/guides" element={<GuidesManagementPage />} />
+            <Route path="content/email-templates" element={<EmailTemplatesPage />} />
+            <Route path="content/branding" element={<BrandingPage />} />
+            <Route path="content/feature-flags" element={<FeatureFlagsPage />} />
+            
+            {/* Monitoring & Logs */}
+            <Route path="monitoring/audit-log" element={<AuditLogPage />} />
+            <Route path="monitoring/error-log" element={<ErrorLogPage />} />
+            <Route path="monitoring/system-status" element={<SystemStatusPage />} />
+            <Route path="metrics" element={<MetricsPage />} />
+            
+            {/* Billing & Subscriptions */}
+            <Route path="billing/plans" element={<PlanManagementPage />} />
+            <Route path="billing/subscriptions" element={<SubscriptionOverviewPage />} />
+            <Route path="billing/invoices" element={<InvoiceManagementPage />} />
+            <Route path="billing/stripe-settings" element={<StripeSettingsPage />} />
+            
+            {/* Integrations & Settings */}
+            <Route path="openai" element={<OpenAIPage />} />
+            <Route path="hubspot" element={<HubspotPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+          </Route>
+          
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

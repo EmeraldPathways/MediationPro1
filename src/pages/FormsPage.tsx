@@ -9,14 +9,14 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AgreementToMediateForm } from "@/components/forms/AgreementToMediateForm";
-import { StatementOfMeansForm } from "@/components/forms/StatementOfMeansForm";
-import { ClientEnquiryForm } from "@/components/forms/ClientEnquiryForm";
-import { BillingForm } from "@/components/forms/BillingForm";
+import { AgreementToMediateForm } from "@/pages/forms/AgreementToMediateForm";
+import { StatementOfMeansForm } from "@/pages/forms/StatementOfMeansForm";
+import { ClientEnquiryForm } from "@/pages/forms/ClientEnquiryForm";
+import { BillingForm } from "@/pages/forms/BillingForm";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TemplateBuilder } from "@/components/forms/FormBuilder";
+import { TemplateBuilder } from "@/pages/forms/FormBuilder";
 
 interface Matter {
   id: string;
@@ -355,6 +355,7 @@ const FormsPage = () => {
                       </CardFooter>
                     </Card>
                   ))}
+
                 </div>
                 
                 {filteredForms.length === 0 && (
