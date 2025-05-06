@@ -278,6 +278,9 @@ export default function SubscriptionOverviewPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isRefreshing, setIsRefreshing] = useState(false);
   
+  // Helper for icon size
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
+  
   // Filter subscriptions based on search, plan and status
   const filteredSubscriptions = subscriptions.filter(sub => {
     const searchMatch = search === "" || 
@@ -314,15 +317,15 @@ export default function SubscriptionOverviewPage() {
   const getStatusBadge = (status) => {
     switch(status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>;
+        return <Badge className={`bg-green-100 text-green-800 hover:bg-green-100 ${isMobile ? "text-[0.65rem] px-1" : ""}`}>Active</Badge>;
       case "past_due":
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Past Due</Badge>;
+        return <Badge className={`bg-amber-100 text-amber-800 hover:bg-amber-100 ${isMobile ? "text-[0.65rem] px-1" : ""}`}>Past Due</Badge>;
       case "trialing":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Trialing</Badge>;
+        return <Badge className={`bg-blue-100 text-blue-800 hover:bg-blue-100 ${isMobile ? "text-[0.65rem] px-1" : ""}`}>Trialing</Badge>;
       case "canceled":
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Canceled</Badge>;
+        return <Badge className={`bg-gray-100 text-gray-800 hover:bg-gray-100 ${isMobile ? "text-[0.65rem] px-1" : ""}`}>Canceled</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className={isMobile ? "text-[0.65rem] px-1" : ""}>{status}</Badge>;
     }
   };
 
@@ -343,121 +346,138 @@ export default function SubscriptionOverviewPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+    <div className={`${isMobile ? "space-y-4" : "space-y-6"}`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Subscription Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className={`${isMobile ? "text-xl" : "text-3xl"} font-bold tracking-tight`}>Subscription Overview</h1>
+          <p className="text-muted-foreground text-sm">
             Monitor revenue and subscription performance
           </p>
         </div>
-        <div className="flex gap-2 mt-4 sm:mt-0">
-          <Button variant="outline" size={isMobile ? "sm" : "default"} onClick={handleRefresh} disabled={isRefreshing}>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size={isMobile ? "sm" : "default"} 
+            onClick={handleRefresh} 
+            disabled={isRefreshing} 
+            className={isMobile ? "h-8 text-xs px-2.5" : ""}
+          >
             {isRefreshing ? (
               <>
-                <span className="animate-spin mr-2">◌</span>
-                Refreshing...
+                <span className="animate-spin mr-1.5">◌</span>
+                <span>Refreshing...</span>
               </>
             ) : (
               <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh Data
+                <RefreshCw className={`mr-1.5 ${iconSizeClass}`} />
+                <span>Refresh</span>
               </>
             )}
           </Button>
-          <Button size={isMobile ? "sm" : "default"}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
+          <Button 
+            size={isMobile ? "sm" : "default"} 
+            className={isMobile ? "h-8 text-xs px-2.5" : ""}
+          >
+            <Download className={`mr-1.5 ${iconSizeClass}`} />
+            <span>Export</span>
           </Button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Monthly Recurring Revenue
+          <CardHeader className={`${isMobile ? "px-3 py-2" : "pb-2"}`}>
+            <CardTitle className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
+              Monthly Revenue
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{formatCurrency(subscriptionStats.mrr)}</div>
-              <div className="flex items-center text-sm text-green-600 bg-green-100 rounded-full px-2 py-0.5">
-                <ArrowUpRight className="mr-1 h-4 w-4" />
+              <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>
+                {formatCurrency(subscriptionStats.mrr)}
+              </div>
+              <div className={`flex items-center ${isMobile ? "text-[0.65rem] px-1.5 py-0.5" : "text-sm px-2 py-0.5"} text-green-600 bg-green-100 rounded-full`}>
+                <ArrowUpRight className={`${isMobile ? "mr-0.5 h-2.5 w-2.5" : "mr-1 h-4 w-4"}`} />
                 8.2%
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">vs previous month</p>
+            <p className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mt-1`}>vs previous month</p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className={`${isMobile ? "px-3 py-2" : "pb-2"}`}>
+            <CardTitle className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
               Active Subscribers
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{subscriptionStats.activeSubscribers}</div>
-              <div className="flex items-center text-sm text-green-600 bg-green-100 rounded-full px-2 py-0.5">
-                <ArrowUpRight className="mr-1 h-4 w-4" />
+              <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>
+                {subscriptionStats.activeSubscribers}
+              </div>
+              <div className={`flex items-center ${isMobile ? "text-[0.65rem] px-1.5 py-0.5" : "text-sm px-2 py-0.5"} text-green-600 bg-green-100 rounded-full`}>
+                <ArrowUpRight className={`${isMobile ? "mr-0.5 h-2.5 w-2.5" : "mr-1 h-4 w-4"}`} />
                 3.5%
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">vs previous month</p>
+            <p className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mt-1`}>vs previous month</p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className={`${isMobile ? "px-3 py-2" : "pb-2"}`}>
+            <CardTitle className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
               Average Revenue
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{formatCurrency(subscriptionStats.averageRevenue)}</div>
-              <div className="flex items-center text-sm text-green-600 bg-green-100 rounded-full px-2 py-0.5">
-                <ArrowUpRight className="mr-1 h-4 w-4" />
+              <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>
+                {formatCurrency(subscriptionStats.averageRevenue)}
+              </div>
+              <div className={`flex items-center ${isMobile ? "text-[0.65rem] px-1.5 py-0.5" : "text-sm px-2 py-0.5"} text-green-600 bg-green-100 rounded-full`}>
+                <ArrowUpRight className={`${isMobile ? "mr-0.5 h-2.5 w-2.5" : "mr-1 h-4 w-4"}`} />
                 1.8%
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">per subscriber</p>
+            <p className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mt-1`}>per subscriber</p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardHeader className={`${isMobile ? "px-3 py-2" : "pb-2"}`}>
+            <CardTitle className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
               Churn Rate
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{subscriptionStats.churnRate}%</div>
-              <div className="flex items-center text-sm text-red-600 bg-red-100 rounded-full px-2 py-0.5">
-                <ArrowDownRight className="mr-1 h-4 w-4" />
+              <div className={`${isMobile ? "text-lg" : "text-2xl"} font-bold`}>
+                {subscriptionStats.churnRate}%
+              </div>
+              <div className={`flex items-center ${isMobile ? "text-[0.65rem] px-1.5 py-0.5" : "text-sm px-2 py-0.5"} text-red-600 bg-red-100 rounded-full`}>
+                <ArrowDownRight className={`${isMobile ? "mr-0.5 h-2.5 w-2.5" : "mr-1 h-4 w-4"}`} />
                 0.3%
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">monthly average</p>
+            <p className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mt-1`}>monthly average</p>
           </CardContent>
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-3 ${isMobile ? "gap-4" : "gap-6"}`}>
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Revenue Distribution</CardTitle>
-            <CardDescription>
+          <CardHeader className={isMobile ? "px-3 py-3" : ""}>
+            <CardTitle className={isMobile ? "text-base" : ""}>Revenue Distribution</CardTitle>
+            <CardDescription className={isMobile ? "text-xs" : ""}>
               Revenue breakdown by subscription plan
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
+            <div className={isMobile ? "space-y-3" : "space-y-4"}>
               {subscriptionStats.revenueByPlan.map((plan) => (
-                <div key={plan.name} className="space-y-2">
+                <div key={plan.name} className={isMobile ? "space-y-1" : "space-y-2"}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <span className={`h-3 w-3 rounded-full mr-2 ${
@@ -465,24 +485,32 @@ export default function SubscriptionOverviewPage() {
                         plan.name === 'Professional' ? 'bg-indigo-500' : 
                         'bg-purple-500'
                       }`}></span>
-                      <span>{plan.name}</span>
+                      <span className={isMobile ? "text-sm" : ""}>{plan.name}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm font-medium">{formatCurrency(plan.amount)}</span>
-                      <span className="text-xs text-muted-foreground ml-2">({plan.percentage}%)</span>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium`}>
+                        {formatCurrency(plan.amount)}
+                      </span>
+                      <span className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground ml-2`}>
+                        ({plan.percentage}%)
+                      </span>
                     </div>
                   </div>
-                  <Progress value={plan.percentage} className="h-2" />
+                  <Progress value={plan.percentage} className="h-1.5" />
                 </div>
               ))}
             </div>
-            <div className="border-t pt-4 mt-4">
+            <div className={`border-t ${isMobile ? "pt-3 mt-3" : "pt-4 mt-4"}`}>
               <div className="flex justify-between items-center">
-                <div className="text-sm font-medium text-muted-foreground">Total Monthly Revenue</div>
+                <div className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
+                  Total Monthly Revenue
+                </div>
                 <div className="font-semibold">{formatCurrency(subscriptionStats.mrr)}</div>
               </div>
-              <div className="flex justify-between items-center mt-2">
-                <div className="text-sm font-medium text-muted-foreground">Projected Annual Revenue</div>
+              <div className={`flex justify-between items-center ${isMobile ? "mt-1.5" : "mt-2"}`}>
+                <div className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-muted-foreground`}>
+                  Projected Annual Revenue
+                </div>
                 <div className="font-semibold">{formatCurrency(subscriptionStats.arr)}</div>
               </div>
             </div>
@@ -490,17 +518,17 @@ export default function SubscriptionOverviewPage() {
         </Card>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Subscriber Distribution</CardTitle>
-            <CardDescription>
+          <CardHeader className={isMobile ? "px-3 py-3" : ""}>
+            <CardTitle className={isMobile ? "text-base" : ""}>Subscriber Distribution</CardTitle>
+            <CardDescription className={isMobile ? "text-xs" : ""}>
               Subscribers by plan
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-8">
+          <CardContent className={isMobile ? "px-3 py-1" : ""}>
+            <div className={isMobile ? "space-y-5" : "space-y-8"}>
               {subscriptionStats.usersByPlan.map((plan) => (
                 <div key={plan.name} className="flex items-center">
-                  <div className={`h-8 w-8 rounded-full mr-4 flex items-center justify-center text-white ${
+                  <div className={`${isMobile ? "h-7 w-7" : "h-8 w-8"} rounded-full mr-3 flex items-center justify-center text-white ${
                     plan.name === 'Basic' ? 'bg-blue-500' : 
                     plan.name === 'Professional' ? 'bg-indigo-500' : 
                     'bg-purple-500'
@@ -509,18 +537,20 @@ export default function SubscriptionOverviewPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">{plan.name}</span>
-                      <span className="text-sm">{plan.count} users</span>
+                      <span className={`${isMobile ? "text-sm" : ""} font-medium`}>{plan.name}</span>
+                      <span className={isMobile ? "text-xs" : "text-sm"}>{plan.count} users</span>
                     </div>
                     <div className="flex items-center">
-                      <Progress value={plan.percentage} className="h-2 flex-1" />
-                      <span className="text-xs ml-2 w-12 text-right">{plan.percentage}%</span>
+                      <Progress value={plan.percentage} className="h-1.5 flex-1" />
+                      <span className={`${isMobile ? "text-[0.65rem]" : "text-xs"} ml-2 w-12 text-right`}>
+                        {plan.percentage}%
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div className="text-sm font-medium">Total Users</div>
+              <div className={`flex justify-between items-center ${isMobile ? "pt-3 mt-1 border-t" : "pt-4 border-t"}`}>
+                <div className={isMobile ? "text-xs" : "text-sm"}>Total Users</div>
                 <div className="font-semibold">{subscriptionStats.activeSubscribers}</div>
               </div>
             </div>
@@ -528,123 +558,189 @@ export default function SubscriptionOverviewPage() {
         </Card>
       </div>
       
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+      <Card className={`${isMobile ? "h-[calc(100vh-450px)]" : "h-[calc(100vh-720px)]"} flex flex-col overflow-hidden`}>
+        <CardHeader className={isMobile ? "px-3 py-3" : ""}>
+          <div className="flex flex-col gap-2">
             <div>
-              <CardTitle>Active Subscriptions</CardTitle>
-              <CardDescription>
+              <CardTitle className={isMobile ? "text-base" : ""}>Active Subscriptions</CardTitle>
+              <CardDescription className={isMobile ? "text-xs" : ""}>
                 All current subscribers and their status
               </CardDescription>
             </div>
-            <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative w-full sm:w-[250px]">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className={`absolute left-2.5 top-${isMobile ? "2" : "2.5"} ${iconSizeClass} text-muted-foreground`} />
                 <Input
                   placeholder="Search by name or email..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8"
+                  className={`${isMobile ? "pl-7 h-8 text-sm" : "pl-8"}`}
                 />
               </div>
-              <Select 
-                value={planFilter} 
-                onValueChange={setPlanFilter}
-              >
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Plan" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Plans</SelectItem>
-                  <SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="enterprise">Enterprise</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select 
-                value={statusFilter} 
-                onValueChange={setStatusFilter}
-              >
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="past_due">Past Due</SelectItem>
-                  <SelectItem value="trialing">Trialing</SelectItem>
-                  <SelectItem value="canceled">Canceled</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Select 
+                  value={planFilter} 
+                  onValueChange={setPlanFilter}
+                >
+                  <SelectTrigger className={`${isMobile ? "h-8 text-xs flex-1" : "w-[120px]"}`}>
+                    <SelectValue placeholder="Plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Plans</SelectItem>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select 
+                  value={statusFilter} 
+                  onValueChange={setStatusFilter}
+                >
+                  <SelectTrigger className={`${isMobile ? "h-8 text-xs flex-1" : "w-[120px]"}`}>
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="past_due">Past Due</SelectItem>
+                    <SelectItem value="trialing">Trialing</SelectItem>
+                    <SelectItem value="canceled">Canceled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead className="hidden sm:table-cell">Next Billing</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSubscriptions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      No subscriptions match the current filters
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredSubscriptions.map((subscription) => (
-                    <TableRow key={subscription.id}>
-                      <TableCell>
+        <CardContent className={`flex-1 overflow-y-auto overflow-x-hidden ${isMobile ? "p-0 px-3" : ""}`}>
+          {isMobile ? (
+            // Mobile view - Card-based layout
+            <div className="space-y-2 py-2">
+              {filteredSubscriptions.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-sm text-muted-foreground">No subscriptions match the current filters</p>
+                </div>
+              ) : (
+                filteredSubscriptions.map((subscription) => (
+                  <Card 
+                    key={subscription.id}
+                    className="border overflow-hidden"
+                  >
+                    <div className="px-3 py-2.5">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center">
-                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mr-2 text-xs font-medium">
+                          <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center mr-1.5 text-xs font-medium">
                             {subscription.customer.name.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-medium">{subscription.customer.name}</div>
-                            <div className="text-xs text-muted-foreground">{subscription.customer.email}</div>
+                            <div className="text-xs font-medium">{subscription.customer.name}</div>
+                            <div className="text-[0.65rem] text-muted-foreground">{subscription.customer.email}</div>
                           </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{subscription.plan}</div>
-                        <div className="text-xs text-muted-foreground capitalize">{subscription.billingCycle}</div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {new Date(subscription.nextBillingDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        {formatCurrency(subscription.amount)}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(subscription.status)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="sm">
-                          <span className="sr-only">Manage</span>
-                          <ArrowRight className="h-4 w-4" />
+                        <div>
+                          {getStatusBadge(subscription.status)}
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2 mt-1.5 text-[0.65rem]">
+                        <div>
+                          <div className="text-muted-foreground">Plan:</div>
+                          <div className="font-medium">{subscription.plan}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Amount:</div>
+                          <div className="font-medium">{formatCurrency(subscription.amount)}</div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground">Next bill:</div>
+                          <div className="font-medium">
+                            {format(new Date(subscription.nextBillingDate), "MMM d")}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end mt-1.5">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 py-0 px-2 text-xs"
+                        >
+                          <span>Manage</span>
+                          <ArrowRight className="h-3 w-3 ml-1" />
                         </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          ) : (
+            // Desktop view - Table layout
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead className="hidden sm:table-cell">Next Billing</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSubscriptions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-24 text-center">
+                        No subscriptions match the current filters
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    filteredSubscriptions.map((subscription) => (
+                      <TableRow key={subscription.id}>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mr-2 text-xs font-medium">
+                              {subscription.customer.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-medium">{subscription.customer.name}</div>
+                              <div className="text-xs text-muted-foreground">{subscription.customer.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{subscription.plan}</div>
+                          <div className="text-xs text-muted-foreground capitalize">{subscription.billingCycle}</div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {format(new Date(subscription.nextBillingDate), "MMM d, yyyy")}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(subscription.amount)}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(subscription.status)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm">
+                            <span className="sr-only">Manage</span>
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
-        <CardFooter className="flex items-center justify-between bg-muted/50 border-t px-6 py-3">
-          <div className="text-xs text-muted-foreground">
+        <CardFooter className={`flex items-center justify-between bg-muted/50 border-t ${isMobile ? "px-3 py-2" : "px-6 py-3"}`}>
+          <div className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground`}>
             Showing {filteredSubscriptions.length} of {subscriptions.length} subscriptions
           </div>
-          <div className="text-xs text-muted-foreground">
-            Last updated: {format(new Date(), "MMM d, yyyy 'at' h:mm a")}
+          <div className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground`}>
+            Last updated: {format(new Date(), isMobile ? "MM/dd HH:mm" : "MMM d, yyyy 'at' h:mm a")}
           </div>
         </CardFooter>
       </Card>

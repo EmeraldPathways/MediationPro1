@@ -3,8 +3,8 @@ import { Layout } from "@/components/layout/layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, MessageSquare, Calendar, Clock, Users, Plus, MoreHorizontal } from "lucide-react";
-import { getItem, putItem, getItemsByIndex } from "@/services/localDbService";
+import { ChevronLeft, MessageSquare, Calendar, Clock, Users, Plus, MoreHorizontal, MapPin } from "lucide-react";
+import { getItem, putItem, getItemsByIndex, deleteItem } from "@/services/localDbService";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -125,23 +125,49 @@ const MeetingsPage = () => {
   }, [caseId]);
 
   const handleCreateMeeting = async () => {
-    if (!caseId) return;
+    if (!caseId) {
+      console.error("Case ID is missing.");
+      toast.error("Cannot create meeting: Case ID is missing.");
+      return;
+    }
     
+    // Basic validation
+    if (!newMeeting.title || !newMeeting.date || !newMeeting.time || !newMeeting.duration) {
+      console.error("Validation failed: Missing required meeting details.", newMeeting);
+      toast.error("Please fill in all required meeting details (Title, Date, Time, Duration).");
+      return;
+    }
+
     try {
       const now = new Date().toISOString();
       const meetingToCreate: Meeting = {
-        ...newMeeting as any,
         id: crypto.randomUUID(),
         caseId,
+        title: newMeeting.title || 'Untitled Meeting', // Provide default if empty
+        date: newMeeting.date,
+        time: newMeeting.time,
+        duration: newMeeting.duration,
+        location: newMeeting.location || 'Not specified', // Provide default
+        participants: newMeeting.participants || [],
+        agenda: newMeeting.agenda || '',
+        notes: newMeeting.notes || '', // Ensure notes is always a string
         createdAt: now,
         updatedAt: now,
-        participants: newMeeting.participants || []
       };
       
+      console.log("Attempting to put item into database:", meetingToCreate);
       await putItem('meetings', meetingToCreate);
+      console.log("Item successfully put into database.");
       
-      // Update the meetings list
-      setMeetings(prev => [meetingToCreate, ...prev]);
+      // Update the meetings list, maintaining sort order (newest first by date)
+      setMeetings(prev => {
+        const updatedMeetings = [meetingToCreate, ...prev];
+        const sortedMeetings = updatedMeetings.sort((a, b) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        console.log("Meetings state updated and sorted:", sortedMeetings);
+        return sortedMeetings;
+      });
       
       // Reset form and close dialog
       setNewMeeting({
@@ -250,48 +276,53 @@ const MeetingsPage = () => {
               
               <div className={`grid ${isMobile ? "gap-3 py-3" : "gap-4 py-4"}`}>
                 <div className="grid gap-1.5">
-                  <Label htmlFor="title" className={isMobile ? "text-xs" : ""}>Title</Label>
+                  <Label htmlFor="title" className={isMobile ? "text-xs" : ""}>Title *</Label>
                   <Input
                     id="title"
                     value={newMeeting.title}
                     onChange={(e) => setNewMeeting(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="E.g., Initial Consultation"
                     className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
+                    required // Add basic HTML validation
                   />
                 </div>
                 
                 <div className={`grid grid-cols-2 ${isMobile ? "gap-2" : "gap-4"}`}>
                   <div className="grid gap-1.5">
-                    <Label htmlFor="date" className={isMobile ? "text-xs" : ""}>Date</Label>
+                    <Label htmlFor="date" className={isMobile ? "text-xs" : ""}>Date *</Label>
                     <Input
                       id="date"
                       type="date"
                       value={newMeeting.date}
                       onChange={(e) => setNewMeeting(prev => ({ ...prev, date: e.target.value }))}
                       className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
+                      required
                     />
                   </div>
                   <div className="grid gap-1.5">
-                    <Label htmlFor="time" className={isMobile ? "text-xs" : ""}>Time</Label>
+                    <Label htmlFor="time" className={isMobile ? "text-xs" : ""}>Time *</Label>
                     <Input
                       id="time"
                       type="time"
                       value={newMeeting.time}
                       onChange={(e) => setNewMeeting(prev => ({ ...prev, time: e.target.value }))}
                       className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
+                      required
                     />
                   </div>
                 </div>
                 
                 <div className={`grid grid-cols-2 ${isMobile ? "gap-2" : "gap-4"}`}>
                   <div className="grid gap-1.5">
-                    <Label htmlFor="duration" className={isMobile ? "text-xs" : ""}>Duration (minutes)</Label>
+                    <Label htmlFor="duration" className={isMobile ? "text-xs" : ""}>Duration (minutes) *</Label>
                     <Input
                       id="duration"
                       type="number"
                       value={newMeeting.duration}
                       onChange={(e) => setNewMeeting(prev => ({ ...prev, duration: e.target.value }))}
                       className={`${isMobile ? "h-8 text-xs" : "h-9 text-sm"}`}
+                      min="1" // Ensure positive duration
+                      required
                     />
                   </div>
                   <div className="grid gap-1.5">
@@ -507,9 +538,5 @@ const MeetingsPage = () => {
     </Layout>
   );
 };
-
-// Import missing components
-import { deleteItem } from "@/services/localDbService";
-import { MapPin } from "lucide-react";
 
 export default MeetingsPage;

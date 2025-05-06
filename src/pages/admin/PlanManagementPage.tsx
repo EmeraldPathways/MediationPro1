@@ -352,44 +352,45 @@ export default function PlanManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`${isMobile ? "space-y-4" : "space-y-6"}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Plan Management</h1>
+          <h1 className={`${isMobile ? "text-xl" : "text-2xl md:text-3xl"} font-bold`}>Plan Management</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Create and manage subscription plans for your service
           </p>
         </div>
         <Dialog open={isCreatingPlan} onOpenChange={setIsCreatingPlan}>
           <DialogTrigger asChild>
-            <Button className="mt-4 sm:mt-0" size={isMobile ? "sm" : "default"}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button className={`mt-4 sm:mt-0 ${isMobile ? "h-8 text-xs" : ""}`}>
+              <Plus className={isMobile ? "mr-1.5 h-3 w-3" : "mr-2 h-4 w-4"} />
               New Plan
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className={`${isMobile ? "max-w-[92%]" : "sm:max-w-[600px]"}`}>
             <DialogHeader>
-              <DialogTitle>Create Subscription Plan</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className={isMobile ? "text-base" : ""}>Create Subscription Plan</DialogTitle>
+              <DialogDescription className={isMobile ? "text-xs" : ""}>
                 Define the details for your new subscription plan
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid gap-${isMobile ? "3" : "4"} py-${isMobile ? "3" : "4"}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="plan-name">Plan Name</Label>
+                  <Label htmlFor="plan-name" className={isMobile ? "text-sm" : ""}>Plan Name</Label>
                   <Input 
                     id="plan-name" 
                     value={newPlan.name}
                     onChange={(e) => setNewPlan({...newPlan, name: e.target.value})}
                     placeholder="e.g., Professional"
+                    className={isMobile ? "h-8 text-sm" : ""}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="plan-price">Price</Label>
+                  <Label htmlFor="plan-price" className={isMobile ? "text-sm" : ""}>Price</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${isMobile ? "text-sm" : ""}`}>$</span>
                     <Input 
                       id="plan-price" 
                       value={newPlan.price}
@@ -397,7 +398,7 @@ export default function PlanManagementPage() {
                       type="number"
                       step="0.01"
                       min="0"
-                      className="pl-7"
+                      className={`pl-7 ${isMobile ? "h-8 text-sm" : ""}`}
                       placeholder="49.99"
                     />
                   </div>
@@ -405,24 +406,25 @@ export default function PlanManagementPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="plan-description">Description</Label>
+                <Label htmlFor="plan-description" className={isMobile ? "text-sm" : ""}>Description</Label>
                 <Textarea 
                   id="plan-description" 
                   value={newPlan.description}
                   onChange={(e) => setNewPlan({...newPlan, description: e.target.value})}
                   placeholder="Briefly describe this plan"
                   rows={2}
+                  className={isMobile ? "text-sm" : ""}
                 />
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="billing-cycle">Billing Cycle</Label>
+                  <Label htmlFor="billing-cycle" className={isMobile ? "text-sm" : ""}>Billing Cycle</Label>
                   <Select 
                     value={newPlan.billingCycle}
                     onValueChange={(value) => setNewPlan({...newPlan, billingCycle: value})}
                   >
-                    <SelectTrigger id="billing-cycle">
+                    <SelectTrigger id="billing-cycle" className={isMobile ? "h-8 text-sm" : ""}>
                       <SelectValue placeholder="Select billing cycle" />
                     </SelectTrigger>
                     <SelectContent>
@@ -432,12 +434,12 @@ export default function PlanManagementPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="plan-status">Status</Label>
+                  <Label htmlFor="plan-status" className={isMobile ? "text-sm" : ""}>Status</Label>
                   <Select 
                     value={newPlan.status}
                     onValueChange={(value) => setNewPlan({...newPlan, status: value})}
                   >
-                    <SelectTrigger id="plan-status">
+                    <SelectTrigger id="plan-status" className={isMobile ? "h-8 text-sm" : ""}>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -450,7 +452,7 @@ export default function PlanManagementPage() {
               </div>
               
               <div className="space-y-3">
-                <Label>Included Features</Label>
+                <Label className={isMobile ? "text-sm" : ""}>Included Features</Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {newPlan.features.map((feature, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -462,10 +464,11 @@ export default function PlanManagementPage() {
                           updatedFeatures[index].included = checked === true;
                           setNewPlan({...newPlan, features: updatedFeatures});
                         }}
+                        className={isMobile ? "h-3.5 w-3.5" : ""}
                       />
                       <Label 
                         htmlFor={`feature-${index}`}
-                        className="text-sm font-normal"
+                        className={`${isMobile ? "text-xs" : "text-sm"} font-normal`}
                       >
                         {feature.name}
                       </Label>
@@ -479,12 +482,14 @@ export default function PlanManagementPage() {
               <Button 
                 variant="outline" 
                 onClick={() => setIsCreatingPlan(false)}
+                className={isMobile ? "h-8 text-xs" : ""}
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleCreatePlan}
                 disabled={!newPlan.name || !newPlan.price || isSaving}
+                className={isMobile ? "h-8 text-xs" : ""}
               >
                 {isSaving ? (
                   <>
@@ -501,12 +506,12 @@ export default function PlanManagementPage() {
       </div>
       
       <Card>
-        <CardHeader>
+        <CardHeader className={isMobile ? "px-3 py-3" : ""}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <CardTitle>Subscription Plans</CardTitle>
+            <CardTitle className={isMobile ? "text-base" : ""}>Subscription Plans</CardTitle>
             <div className="flex flex-wrap gap-2 w-full sm:w-auto mt-2 sm:mt-0">
               <Select value={filterCycle} onValueChange={setFilterCycle}>
-                <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectTrigger className={`w-full sm:w-[150px] ${isMobile ? "h-8 text-sm" : ""}`}>
                   <SelectValue placeholder="Billing Cycle" />
                 </SelectTrigger>
                 <SelectContent>
@@ -517,7 +522,7 @@ export default function PlanManagementPage() {
               </Select>
               
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectTrigger className={`w-full sm:w-[150px] ${isMobile ? "h-8 text-sm" : ""}`}>
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -530,111 +535,177 @@ export default function PlanManagementPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Plan Name</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Billing</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPlans.map((plan) => (
-                  <TableRow key={plan.id}>
-                    <TableCell>
+        <CardContent className={isMobile ? "px-3 py-3" : ""}>
+          {isMobile ? (
+            // Mobile card view
+            <div className="space-y-2">
+              {filteredPlans.map((plan) => (
+                <Card key={plan.id} className="overflow-hidden">
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div>
-                        <div className="font-medium">{plan.name}</div>
-                        <div className="text-sm text-muted-foreground">{plan.description}</div>
+                        <div className="font-medium text-sm">{plan.name}</div>
+                        <div className="text-xs text-muted-foreground">{plan.description}</div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      ${plan.price.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {plan.billingCycle}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
                       <Badge 
-                        className={
-                          plan.status === "active" ? "bg-green-100 text-green-800 hover:bg-green-100" : 
-                          plan.status === "draft" ? "bg-blue-100 text-blue-800 hover:bg-blue-100" :
-                          "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                        }
+                        className={`
+                          ${plan.status === "active" ? "bg-green-100 text-green-800" : 
+                            plan.status === "draft" ? "bg-blue-100 text-blue-800" :
+                            "bg-gray-100 text-gray-800"} 
+                          ${isMobile ? "text-[0.65rem] h-5" : ""}
+                        `}
                       >
                         {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {plan.lastUpdated}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => handleEditPlan(plan)}
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => setDeletingPlan(plan)}
-                        >
-                          <Trash className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                
-                {filteredPlans.length === 0 && (
+                    </div>
+                    
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-medium">${plan.price.toFixed(2)}</div>
+                      <Badge variant="outline" className={`capitalize ${isMobile ? "text-[0.65rem] h-5" : ""}`}>
+                        {plan.billingCycle}
+                      </Badge>
+                    </div>
+                    
+                    <div className="text-xs text-muted-foreground mb-3">
+                      Last updated: {plan.lastUpdated}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => handleEditPlan(plan)}
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => setDeletingPlan(plan)}
+                      >
+                        <Trash className="h-3 w-3 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              
+              {filteredPlans.length === 0 && (
+                <div className="text-center py-8 text-sm text-muted-foreground">
+                  No subscription plans match the current filters
+                </div>
+              )}
+            </div>
+          ) : (
+            // Desktop table view
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      No subscription plans match the current filters
-                    </TableCell>
+                    <TableHead>Plan Name</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Billing</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Last Updated</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredPlans.map((plan) => (
+                    <TableRow key={plan.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{plan.name}</div>
+                          <div className="text-sm text-muted-foreground">{plan.description}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        ${plan.price.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize">
+                          {plan.billingCycle}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          className={
+                            plan.status === "active" ? "bg-green-100 text-green-800 hover:bg-green-100" : 
+                            plan.status === "draft" ? "bg-blue-100 text-blue-800 hover:bg-blue-100" :
+                            "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                          }
+                        >
+                          {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {plan.lastUpdated}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditPlan(plan)}
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => setDeletingPlan(plan)}
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  
+                  {filteredPlans.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="h-24 text-center">
+                        No subscription plans match the current filters
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
       
       {/* Edit Plan Dialog */}
       {editingPlan && (
         <Dialog open={editingPlan !== null} onOpenChange={(open) => !open && setEditingPlan(null)}>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className={`${isMobile ? "max-w-[92%]" : "sm:max-w-[600px]"}`}>
             <DialogHeader>
-              <DialogTitle>Edit Subscription Plan</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className={isMobile ? "text-base" : ""}>Edit Subscription Plan</DialogTitle>
+              <DialogDescription className={isMobile ? "text-xs" : ""}>
                 Make changes to the subscription plan
               </DialogDescription>
             </DialogHeader>
             
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid gap-${isMobile ? "3" : "4"} py-${isMobile ? "3" : "4"}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-plan-name">Plan Name</Label>
+                  <Label htmlFor="edit-plan-name" className={isMobile ? "text-sm" : ""}>Plan Name</Label>
                   <Input 
                     id="edit-plan-name" 
                     value={editingPlan.name}
                     onChange={(e) => setEditingPlan({...editingPlan, name: e.target.value})}
+                    className={isMobile ? "h-8 text-sm" : ""}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-plan-price">Price</Label>
+                  <Label htmlFor="edit-plan-price" className={isMobile ? "text-sm" : ""}>Price</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                    <span className={`absolute left-3 top-1/2 -translate-y-1/2 ${isMobile ? "text-sm" : ""}`}>$</span>
                     <Input 
                       id="edit-plan-price" 
                       value={editingPlan.price}
@@ -645,30 +716,31 @@ export default function PlanManagementPage() {
                       type="number"
                       step="0.01"
                       min="0"
-                      className="pl-7"
+                      className={`pl-7 ${isMobile ? "h-8 text-sm" : ""}`}
                     />
                   </div>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="edit-plan-description">Description</Label>
+                <Label htmlFor="edit-plan-description" className={isMobile ? "text-sm" : ""}>Description</Label>
                 <Textarea 
                   id="edit-plan-description" 
                   value={editingPlan.description}
                   onChange={(e) => setEditingPlan({...editingPlan, description: e.target.value})}
                   rows={2}
+                  className={isMobile ? "text-sm" : ""}
                 />
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-billing-cycle">Billing Cycle</Label>
+                  <Label htmlFor="edit-billing-cycle" className={isMobile ? "text-sm" : ""}>Billing Cycle</Label>
                   <Select 
                     value={editingPlan.billingCycle}
                     onValueChange={(value) => setEditingPlan({...editingPlan, billingCycle: value})}
                   >
-                    <SelectTrigger id="edit-billing-cycle">
+                    <SelectTrigger id="edit-billing-cycle" className={isMobile ? "h-8 text-sm" : ""}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -678,12 +750,12 @@ export default function PlanManagementPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-plan-status">Status</Label>
+                  <Label htmlFor="edit-plan-status" className={isMobile ? "text-sm" : ""}>Status</Label>
                   <Select 
                     value={editingPlan.status}
                     onValueChange={(value) => setEditingPlan({...editingPlan, status: value})}
                   >
-                    <SelectTrigger id="edit-plan-status">
+                    <SelectTrigger id="edit-plan-status" className={isMobile ? "h-8 text-sm" : ""}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -696,7 +768,7 @@ export default function PlanManagementPage() {
               </div>
               
               <div className="space-y-3">
-                <Label>Included Features</Label>
+                <Label className={isMobile ? "text-sm" : ""}>Included Features</Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {editingPlan.features.map((feature, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -708,10 +780,11 @@ export default function PlanManagementPage() {
                           updatedFeatures[index].included = checked === true;
                           setEditingPlan({...editingPlan, features: updatedFeatures});
                         }}
+                        className={isMobile ? "h-3.5 w-3.5" : ""}
                       />
                       <Label 
                         htmlFor={`edit-feature-${index}`}
-                        className="text-sm font-normal"
+                        className={`${isMobile ? "text-xs" : "text-sm"} font-normal`}
                       >
                         {feature.name}
                       </Label>
@@ -725,12 +798,14 @@ export default function PlanManagementPage() {
               <Button 
                 variant="outline" 
                 onClick={() => setEditingPlan(null)}
+                className={isMobile ? "h-8 text-xs" : ""}
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleSavePlan}
                 disabled={!editingPlan.name || !editingPlan.price || isSaving}
+                className={isMobile ? "h-8 text-xs" : ""}
               >
                 {isSaving ? (
                   <>
@@ -739,7 +814,7 @@ export default function PlanManagementPage() {
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-4 w-4" />
+                    <Save className={isMobile ? "mr-1.5 h-3 w-3" : "mr-2 h-4 w-4"} />
                     Save Changes
                   </>
                 )}
@@ -751,37 +826,41 @@ export default function PlanManagementPage() {
       
       {/* Delete Confirmation Dialog */}
       <Dialog open={deletingPlan !== null} onOpenChange={(open) => !open && setDeletingPlan(null)}>
-        <DialogContent>
+        <DialogContent className={`${isMobile ? "max-w-[92%]" : ""}`}>
           <DialogHeader>
-            <DialogTitle>Delete Subscription Plan</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className={isMobile ? "text-base" : ""}>Delete Subscription Plan</DialogTitle>
+            <DialogDescription className={isMobile ? "text-xs" : ""}>
               Are you sure you want to delete this plan? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           
           {deletingPlan && (
-            <div className="py-4 border-y">
-              <div className="font-semibold">{deletingPlan.name}</div>
-              <div className="text-sm text-muted-foreground">{deletingPlan.description}</div>
+            <div className={`py-${isMobile ? "3" : "4"} border-y`}>
+              <div className={`font-semibold ${isMobile ? "text-sm" : ""}`}>{deletingPlan.name}</div>
+              <div className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground`}>{deletingPlan.description}</div>
               <div className="mt-2">
                 <Badge 
-                  className={
-                    deletingPlan.status === "active" ? "bg-green-100 text-green-800" : 
-                    deletingPlan.status === "draft" ? "bg-blue-100 text-blue-800" :
-                    "bg-gray-100 text-gray-800"
-                  }
+                  className={`
+                    ${deletingPlan.status === "active" ? "bg-green-100 text-green-800" : 
+                      deletingPlan.status === "draft" ? "bg-blue-100 text-blue-800" :
+                      "bg-gray-100 text-gray-800"}
+                    ${isMobile ? "text-[0.65rem] h-5" : ""}
+                  `}
                 >
                   {deletingPlan.status.charAt(0).toUpperCase() + deletingPlan.status.slice(1)}
                 </Badge>
-                <span className="text-sm ml-2">${deletingPlan.price.toFixed(2)} / {deletingPlan.billingCycle}</span>
+                <span className={`${isMobile ? "text-xs" : "text-sm"} ml-2`}>
+                  ${deletingPlan.price.toFixed(2)} / {deletingPlan.billingCycle}
+                </span>
               </div>
             </div>
           )}
           
-          <DialogFooter className="mt-4 gap-2">
+          <DialogFooter className={`mt-${isMobile ? "3" : "4"} gap-2`}>
             <Button 
               variant="outline" 
               onClick={() => setDeletingPlan(null)}
+              className={isMobile ? "h-8 text-xs" : ""}
             >
               Cancel
             </Button>
@@ -789,6 +868,7 @@ export default function PlanManagementPage() {
               variant="destructive" 
               onClick={handleDeletePlan}
               disabled={isSaving}
+              className={isMobile ? "h-8 text-xs" : ""}
             >
               {isSaving ? (
                 <>
@@ -805,22 +885,22 @@ export default function PlanManagementPage() {
       
       {/* Features Reference */}
       <Card>
-        <CardHeader>
-          <CardTitle>Plan Features Reference</CardTitle>
-          <CardDescription>
+        <CardHeader className={isMobile ? "px-3 py-3" : ""}>
+          <CardTitle className={isMobile ? "text-base" : ""}>Plan Features Reference</CardTitle>
+          <CardDescription className={isMobile ? "text-xs" : ""}>
             Common features used in subscription plans
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className={isMobile ? "px-3 py-3" : ""}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {standardFeatures.map((feature) => (
-              <div key={feature.id} className="flex items-start space-x-3">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
-                  <feature.icon className="h-4 w-4" />
+              <div key={feature.id} className="flex items-start space-x-2">
+                <div className={`${isMobile ? "h-7 w-7" : "h-8 w-8"} rounded-lg bg-muted flex items-center justify-center`}>
+                  <feature.icon className={isMobile ? "h-3.5 w-3.5" : "h-4 w-4"} />
                 </div>
                 <div>
-                  <h4 className="font-medium text-sm">{feature.name}</h4>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <h4 className={`font-medium ${isMobile ? "text-xs" : "text-sm"}`}>{feature.name}</h4>
+                  <p className={`${isMobile ? "text-[0.65rem]" : "text-xs"} text-muted-foreground mt-0.5`}>
                     Options: {feature.options.join(", ")}
                   </p>
                 </div>

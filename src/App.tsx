@@ -27,6 +27,7 @@ import DocumentsPage from "./pages/Documents";
 import ReportsPage from "./pages/Reports";
 import SettingsPage from "./pages/Settings";
 import GuidesPage from "./pages/guides/GuidesPage";
+import GuidesGettingStarted from "./pages/guides/GuidesGettingStarted";
 import { MediationAgreementBuilder } from "./pages/agreements/MediationAgreement";
 import { ParentingAgreementBuilder } from "./pages/agreements/ParentingAgreement";
 import { SeparationAgreementBuilder } from "./pages/agreements/SeperationAgreement";
@@ -36,26 +37,20 @@ import NotFound from "./pages/NotFound";
 import AdminLayout from "./components/layout/admin/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import UserManagementPage from "./pages/admin/UserManagementPage";
-import RolesPermissionsPage from "./pages/admin/RolesPermissionsPage";
-import InvitationsPage from "./pages/admin/InvitationsPage";
 import AllCasesListPage from "./pages/admin/AllCasesListPage";
 import DataImportExportPage from "./pages/admin/DataImportExportPage";
-import DocumentTemplatesPage from "./pages/admin/DocumentTemplatesPage";
 import GuidesManagementPage from "./pages/admin/GuidesManagementPage";
-import EmailTemplatesPage from "./pages/admin/EmailTemplatesPage";
-import BrandingPage from "./pages/admin/BrandingPage";
-import FeatureFlagsPage from "./pages/admin/FeatureFlagsPage";
+import GuidesAdminGettingStarted from "./pages/admin/guides/GuidesAdminGettingStarted";
 import AuditLogPage from "./pages/admin/AuditLogPage";
-import ErrorLogPage from "./pages/admin/ErrorLogPage";
 import SystemStatusPage from "./pages/admin/SystemStatusPage";
 import PlanManagementPage from "./pages/admin/PlanManagementPage";
 import SubscriptionOverviewPage from "./pages/admin/SubscriptionOverviewPage";
 import InvoiceManagementPage from "./pages/admin/InvoiceManagementPage";
 import StripeSettingsPage from "./pages/admin/StripeSettingsPage";
-import MetricsPage from "./pages/admin/MetricsPage";
 import HubspotPage from "./pages/admin/HubspotPage";
 import OpenAIPage from "./pages/admin/OpenAIPage";
 import AdminSettingsPage from "./pages/admin/SettingsPage";
+import AdminTemplatesPage from "./pages/admin/TemplatesPage";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +91,7 @@ const App = () => (
           <Route path="/forms" element={<FormsPage />} />
           <Route path="/activities" element={<GuidesPage />} /> {/* Placeholder for Activities page */}
           <Route path="/guides" element={<GuidesPage />} /> {/* Add route for GuidesPage */}
+          <Route path="/guides/getting-started" element={<GuidesGettingStarted />} /> {/* Add route for GuidesGettingStarted */}
           <Route path="/mediation-template" element={<MediationAgreementBuilder />} /> {/* Add route for MediationAgreementBuilder */}
           <Route path="/parenting-template" element={<ParentingAgreementBuilder />} /> {/* Add route for ParentingAgreementBuilder */}
           <Route path="/separation-template" element={<SeparationAgreementBuilder />} /> {/* Add route for SeparationAgreementBuilder */}
@@ -107,25 +103,23 @@ const App = () => (
             
             {/* User Management */}
             <Route path="users" element={<UserManagementPage />} />
-            <Route path="users/roles" element={<RolesPermissionsPage />} />
-            <Route path="users/invitations" element={<InvitationsPage />} />
+            {/* Consolidating user management into a tabbed interface */}
             
             {/* Case/Data Oversight */}
             <Route path="cases/all" element={<AllCasesListPage />} />
             <Route path="data/import-export" element={<DataImportExportPage />} />
             
             {/* Content & Configuration */}
-            <Route path="content/document-templates" element={<DocumentTemplatesPage />} />
+            <Route path="content/templates" element={<AdminTemplatesPage />} />
+            {/* Document and email templates consolidated into a single Templates page */}
             <Route path="content/guides" element={<GuidesManagementPage />} />
-            <Route path="content/email-templates" element={<EmailTemplatesPage />} />
-            <Route path="content/branding" element={<BrandingPage />} />
-            <Route path="content/feature-flags" element={<FeatureFlagsPage />} />
+            <Route path="guides/getting-started" element={<GuidesAdminGettingStarted />} />
+            {/* Branding route removed - now part of Settings page */}
             
             {/* Monitoring & Logs */}
             <Route path="monitoring/audit-log" element={<AuditLogPage />} />
-            <Route path="monitoring/error-log" element={<ErrorLogPage />} />
             <Route path="monitoring/system-status" element={<SystemStatusPage />} />
-            <Route path="metrics" element={<MetricsPage />} />
+            {/* Error log route removed - functionality moved to Audit Log page */}
             
             {/* Billing & Subscriptions */}
             <Route path="billing/plans" element={<PlanManagementPage />} />

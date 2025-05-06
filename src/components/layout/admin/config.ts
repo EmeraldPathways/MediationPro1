@@ -3,27 +3,23 @@ import paths from '@/routes/paths';
 import { 
   LayoutDashboard, 
   Users,
-  ShieldCheck,
-  Mail,
-  LineChart, 
-  Smartphone, 
-  Settings,
-  Files,
   FolderOpen,
   Database,
   FileText,
   BookOpen,
   PenTool,
-  Palette,
   ToggleLeft,
   ClipboardList,
   AlertTriangle,
   Activity,
+  LineChart, 
   CreditCard,
   Receipt,
   Tag,
   CircleDollarSign,
-  Brain
+  Brain,
+  Smartphone, 
+  Settings
 } from 'lucide-react';
 
 // Define the type for navigation items
@@ -58,19 +54,9 @@ export const navConfig: NavSectionProps[] = [
     subheader: 'User Management',
     items: [
       {
-        title: 'Users',
+        title: 'User Management',
         path: paths.admin.users,
         icon: Users
-      },
-      {
-        title: 'Roles & Permissions',
-        path: paths.admin.roles,
-        icon: ShieldCheck
-      },
-      {
-        title: 'Invitations',
-        path: paths.admin.invitations,
-        icon: Mail
       },
     ],
   },
@@ -97,29 +83,14 @@ export const navConfig: NavSectionProps[] = [
     subheader: 'Content & Configuration',
     items: [
       {
-        title: 'Document Templates',
-        path: paths.admin.docTemplates,
+        title: 'Templates',
+        path: paths.admin.templates,
         icon: FileText
       },
       {
         title: 'Guides Management',
         path: paths.admin.guides,
         icon: BookOpen
-      },
-      {
-        title: 'Email Templates',
-        path: paths.admin.emailTemplates,
-        icon: PenTool
-      },
-      {
-        title: 'Branding',
-        path: paths.admin.branding,
-        icon: Palette
-      },
-      {
-        title: 'Feature Flags',
-        path: paths.admin.featureFlags,
-        icon: ToggleLeft
       },
     ],
   },
@@ -129,24 +100,14 @@ export const navConfig: NavSectionProps[] = [
     subheader: 'Monitoring & Logs',
     items: [
       {
-        title: 'Audit Log',
+        title: 'Audit & Error Logs',
         path: paths.admin.auditLog,
         icon: ClipboardList
-      },
-      {
-        title: 'Error Log',
-        path: paths.admin.errorLog,
-        icon: AlertTriangle
       },
       {
         title: 'System Status',
         path: paths.admin.systemStatus,
         icon: Activity
-      },
-      {
-        title: 'Metrics',
-        path: paths.admin.metrics,
-        icon: LineChart
       },
     ],
   },

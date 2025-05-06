@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BookOpen, Search, MoreHorizontal, Edit, Trash2, Eye, Plus, Archive, SquarePen, ArrowUpDown } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Mock data for guides
 const guides = [
@@ -40,7 +41,8 @@ const guides = [
     lastUpdated: "2023-04-15",
     author: "Emma Wilson",
     status: "published",
-    viewCount: 245
+    viewCount: 245,
+    path: "/admin/guides/getting-started"
   },
   { 
     id: 2, 
@@ -194,21 +196,44 @@ export default function GuidesManagementPage() {
                 {filteredGuides.length > 0 ? (
                   <div className="divide-y">
                     {filteredGuides.map((guide) => (
-                      <div key={guide.id} className="flex items-start justify-between p-4 hover:bg-muted/50">
-                        <div className="flex-grow pr-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                            <h3 className="font-medium">{guide.title}</h3>
-                            {getStatusBadge(guide.status)}
+                      <div 
+                        key={guide.id} 
+                        className={`flex items-start justify-between p-4 hover:bg-muted/50 ${guide.path ? 'cursor-pointer' : ''}`}
+                      >
+                        {guide.path ? (
+                          <Link 
+                            to={guide.path} 
+                            className="flex-grow pr-4"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                              <h3 className="font-medium">{guide.title}</h3>
+                              {getStatusBadge(guide.status)}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+                              <span>Category: {guide.category}</span>
+                              <span>By: {guide.author}</span>
+                              <span>Updated: {guide.lastUpdated}</span>
+                              {guide.status === "published" && (
+                                <span>{guide.viewCount} views</span>
+                              )}
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="flex-grow pr-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                              <h3 className="font-medium">{guide.title}</h3>
+                              {getStatusBadge(guide.status)}
+                            </div>
+                            <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+                              <span>Category: {guide.category}</span>
+                              <span>By: {guide.author}</span>
+                              <span>Updated: {guide.lastUpdated}</span>
+                              {guide.status === "published" && (
+                                <span>{guide.viewCount} views</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
-                            <span>Category: {guide.category}</span>
-                            <span>By: {guide.author}</span>
-                            <span>Updated: {guide.lastUpdated}</span>
-                            {guide.status === "published" && (
-                              <span>{guide.viewCount} views</span>
-                            )}
-                          </div>
-                        </div>
+                        )}
                         <GuideActions guide={guide} onDelete={handleDelete} />
                       </div>
                     ))}
@@ -277,7 +302,13 @@ function GuideActions({ guide, onDelete }: { guide: any, onDelete: (guide: any) 
           <Eye className="mr-2 h-4 w-4" /> Preview
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Edit className="mr-2 h-4 w-4" /> Edit
+          {guide.path ? (
+            <Link to={guide.path} className="flex items-center w-full">
+              <Edit className="mr-2 h-4 w-4" /> Edit
+            </Link>
+          ) : (
+            <><Edit className="mr-2 h-4 w-4" /> Edit</>
+          )}
         </DropdownMenuItem>
         {guide.status !== "published" ? (
           <DropdownMenuItem>

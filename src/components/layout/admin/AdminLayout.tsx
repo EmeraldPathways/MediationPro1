@@ -21,6 +21,9 @@ import { Menu, X, ArrowLeft, Home } from "lucide-react";
 export default function AdminLayout() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  
+  // Helper for icon size - matching what's in Contacts.tsx
+  const iconSizeClass = isMobile ? "h-3.5 w-3.5" : "h-4 w-4";
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -31,38 +34,38 @@ export default function AdminLayout() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="absolute top-4 left-4 z-50"
+              className="absolute top-4 right-4 z-50"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className={iconSizeClass} />
               <span className="sr-only">Toggle menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-[240px] p-0">
             <div className="flex flex-col h-full">
-              <div className="flex items-center p-4">
-                <h1 className="text-xl font-semibold">Admin Panel</h1>
+              <div className="flex items-center p-3">
+                <h1 className="text-lg font-semibold">Admin Panel</h1>
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="sm" 
                   onClick={() => setOpen(false)} 
                   className="ml-auto"
                 >
-                  <X className="h-5 w-5" />
+                  <X className={iconSizeClass} />
                   <span className="sr-only">Close</span>
                 </Button>
               </div>
               <Separator />
-              <ScrollArea className="flex-1 mt-2 mb-2">
+              <ScrollArea className="flex-1 mt-1 mb-2">
                 <AdminNavSection data={navConfig} onCloseMobile={() => setOpen(false)} />
                 
                 {/* Back to Dashboard Button for Mobile */}
-                <div className="px-3 py-2 mt-4">
+                <div className="px-3 py-2 mt-2">
                   <Link 
                     to="/"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <ArrowLeft className="h-5 w-5" />
+                    <ArrowLeft className={iconSizeClass} />
                     <span>Back to Dashboard</span>
                   </Link>
                 </div>
@@ -88,7 +91,7 @@ export default function AdminLayout() {
                   to="/"
                   className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-4 w-4" />
                   <span>Back to Dashboard</span>
                 </Link>
               </div>
@@ -100,16 +103,16 @@ export default function AdminLayout() {
       {/* Main content */}
       <div className={`flex-1 flex flex-col min-h-screen ${!isMobile ? "md:pl-64" : ""}`}>
         {/* Shared Header for Admin Content Area */}
-        <header className={`sticky top-0 z-40 bg-background border-b h-16 flex items-center px-4 md:px-6 ${isMobile ? 'pl-16' : ''}`}>
-          {/* Mobile Title Area (placeholder if needed, or adjust layout) */}
+        <header className={`sticky top-0 z-40 bg-background border-b ${isMobile ? 'h-14' : 'h-16'} flex items-center ${isMobile ? 'px-3 pl-14' : 'px-6'}`}>
+          {/* Mobile Title Area */}
           {isMobile && (
             <div className="flex-1">
-              {/* Title could potentially be dynamic here based on route */}
+              {/* Dynamic title can be added here later */}
             </div>
           )}
           
           {/* Global Search - aligned to the right */}
-          <div className={`ml-auto ${isMobile ? '' : 'w-full max-w-md'}`}> 
+          <div className={`ml-auto ${isMobile ? 'w-3/4' : 'w-full max-w-md'}`}> 
             <GlobalSearch />
           </div>
           
@@ -117,7 +120,7 @@ export default function AdminLayout() {
         </header>
         
         {/* Content area */}
-        <main className="flex-1 p-4 md:p-6">
+        <main className={`flex-1 ${isMobile ? 'p-3' : 'p-6'}`}>
           <Outlet />
         </main>
       </div>

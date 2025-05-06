@@ -5,7 +5,7 @@ import type { MediatorMateDBSchema, Matter, Note, Contact, Document, Task, CaseF
 // --- Database Configuration ---
 const DATABASE_NAME = 'MediatorMateDB';
 // Increment version if schema changes require it (like adding caseFiles store)
-const DATABASE_VERSION = 3; // Incremented version due to changing caseFiles indexes
+const DATABASE_VERSION = 4; // Incremented version due to adding 'meetings' store
 
 // --- Database Connection ---
 let dbPromise: Promise<IDBPDatabase<MediatorMateDBSchema>> | null = null;
@@ -58,6 +58,14 @@ const getDb = (): Promise<IDBPDatabase<MediatorMateDBSchema>> => {
           timelineStore.createIndex('by-caseId', 'caseId');
           timelineStore.createIndex('by-date', 'date');
           console.log("Created 'timeline' object store.");
+        }
+
+        // Add the new meetings store if it doesn't exist (added in v4)
+        if (!db.objectStoreNames.contains('meetings')) {
+          const meetingsStore = db.createObjectStore('meetings', { keyPath: 'id' });
+          meetingsStore.createIndex('by-caseId', 'caseId');
+          meetingsStore.createIndex('by-date', 'date');
+          console.log("Created 'meetings' object store.");
         }
 
         // Handle future migrations based on oldVersion and newVersion

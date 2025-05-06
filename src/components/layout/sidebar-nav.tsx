@@ -173,14 +173,15 @@ export function SidebarNav() {
           </div>
         </div>
 
-        {/* Mobile hamburger button - moved to top right */}
+        {/* Mobile hamburger button - explicitly positioned top right with higher z-index */}
         {isMobile && (
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="fixed top-4 right-4 z-30 p-3 rounded-md bg-mediator-600 text-white shadow-lg hover:bg-mediator-700 transition-colors"
+            // Increased z-index to ensure it's on top
+            className="fixed top-4 right-4 z-50 p-3 rounded-md bg-mediator-600 text-white shadow-lg hover:bg-mediator-700 transition-colors"
             aria-label="Open menu"
           >
-            <Menu size={20} /> {/* Reduced size by ~20% */}
+            <Menu size={20} />
           </button>
         )}
       </div>

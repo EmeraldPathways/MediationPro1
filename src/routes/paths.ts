@@ -21,29 +21,22 @@ export const paths = {
     root: '/admin',
     dashboard: '/admin/dashboard',
     
-    // User Management
+    // User Management - consolidated into single path
     users: '/admin/users',
-    roles: '/admin/users/roles',
-    invitations: '/admin/users/invitations',
     
     // Case/Data Oversight
     allCases: '/admin/cases/all',
     importExport: '/admin/data/import-export',
     
     // Content & Configuration
-    docTemplates: '/admin/content/document-templates',
+    templates: '/admin/content/templates',
     guides: '/admin/content/guides',
-    emailTemplates: '/admin/content/email-templates',
-    branding: '/admin/content/branding',
-    featureFlags: '/admin/content/feature-flags',
     
     // Monitoring & Logs
     auditLog: '/admin/monitoring/audit-log',
-    errorLog: '/admin/monitoring/error-log',
     systemStatus: '/admin/monitoring/system-status',
     
     // Integrations
-    metrics: '/admin/metrics',
     hubspot: '/admin/hubspot',
     openai: '/admin/openai',
     stripeSettings: '/admin/billing/stripe-settings',

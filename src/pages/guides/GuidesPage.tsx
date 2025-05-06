@@ -18,7 +18,8 @@ const guides = [
     category: "basics",
     description: "Learn the fundamentals of mediation practice and how to prepare for your first case.",
     type: "Guide",
-    lastUpdated: "2025-03-10"
+    lastUpdated: "2025-03-10",
+    path: "/guides/getting-started"
   },
   {
     id: 2,
@@ -237,33 +238,65 @@ const GuidesPage = () => {
                    <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-0 sm:p-4">
                       {filteredGuides.length > 0 ? (
                         filteredGuides.map((guide) => (
-                          <Card key={guide.id} className="overflow-hidden hover:border-primary/50 transition-colors">
-                            <CardHeader className={`${isMobile ? "p-3" : "p-4"} bg-muted/50`}>
-                              <div className="flex items-start justify-between">
-                                <CardTitle className={`${isMobile ? "text-sm" : "text-base"}`}>{guide.title}</CardTitle>
-                                {getGuideBadge(guide.type)}
-                              </div>
-                            </CardHeader>
-                            <CardContent className={`${isMobile ? "p-3" : "p-4"}`}>
-                              <p className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2 mb-4`}>
-                                {guide.description}
-                              </p>
-                              <div className="flex items-center justify-between mt-2">
-                                <div className="flex items-center text-xs text-muted-foreground">
-                                  <BookOpen className="mr-1 h-3 w-3" />
-                                  <span>Updated {formatDate(guide.lastUpdated)}</span>
+                          guide.id === 1 ? (
+                            <Link to={guide.path} key={guide.id}>
+                              <Card className="overflow-hidden hover:border-primary/50 transition-colors">
+                                <CardHeader className={`${isMobile ? "p-3" : "p-4"} bg-muted/50`}>
+                                  <div className="flex items-start justify-between">
+                                    <CardTitle className={`${isMobile ? "text-sm" : "text-base"}`}>{guide.title}</CardTitle>
+                                    {getGuideBadge(guide.type)}
+                                  </div>
+                                </CardHeader>
+                                <CardContent className={`${isMobile ? "p-3" : "p-4"}`}>
+                                  <p className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2 mb-4`}>
+                                    {guide.description}
+                                  </p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <div className="flex items-center text-xs text-muted-foreground">
+                                      <BookOpen className="mr-1 h-3 w-3" />
+                                      <span>Updated {formatDate(guide.lastUpdated)}</span>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                        <Download className="h-4 w-4" />
+                                      </Button>
+                                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                        <ArrowUpRight className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </Link>
+                          ) : (
+                            <Card key={guide.id} className="overflow-hidden hover:border-primary/50 transition-colors">
+                              <CardHeader className={`${isMobile ? "p-3" : "p-4"} bg-muted/50`}>
+                                <div className="flex items-start justify-between">
+                                  <CardTitle className={`${isMobile ? "text-sm" : "text-base"}`}>{guide.title}</CardTitle>
+                                  {getGuideBadge(guide.type)}
                                 </div>
-                                <div className="flex gap-1">
-                                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                  </Button>
+                              </CardHeader>
+                              <CardContent className={`${isMobile ? "p-3" : "p-4"}`}>
+                                <p className={`${isMobile ? "text-xs" : "text-sm"} text-muted-foreground line-clamp-2 mb-4`}>
+                                  {guide.description}
+                                </p>
+                                <div className="flex items-center justify-between mt-2">
+                                  <div className="flex items-center text-xs text-muted-foreground">
+                                    <BookOpen className="mr-1 h-3 w-3" />
+                                    <span>Updated {formatDate(guide.lastUpdated)}</span>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                      <ArrowUpRight className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
+                              </CardContent>
+                            </Card>
+                          )
                         ))
                       ) : (
                         // No results display - only show if no guides

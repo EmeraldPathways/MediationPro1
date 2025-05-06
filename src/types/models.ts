@@ -93,6 +93,18 @@ export interface Note {
     updatedAt: Date;
 }
 
+/**
+ * Represents an event in the timeline of a case.
+ */
+export interface TimelineEvent {
+  id: string;
+  caseId: string;
+  type: 'meeting' | 'form' | 'clientDetails';
+  action: 'created' | 'updated' | 'completed';
+  description: string;
+  date: string; // ISO timestamp
+}
+
 
 // --- IndexedDB Schema Definition ---
 // Re-define here or import if defined elsewhere consistently
@@ -105,12 +117,12 @@ export interface MediatorMateDBSchema extends DBSchema {
   notes: {
     key: string;
     value: Note;
-    indexes: { 'by-caseFileNumber': string }; // Update index name
+    indexes: { 'by-caseFileNumber': string };
   };
   contacts: {
     key: string;
     value: Contact;
-    indexes: { 'by-name': string }; // Note: Indexing 'name' might be better than 'lastName' if 'name' is the full name
+    indexes: { 'by-name': string };
   };
   documents: {
     key: string;
@@ -134,14 +146,11 @@ export interface MediatorMateDBSchema extends DBSchema {
     value: TimelineEvent;
     indexes: { 'by-caseId': string; 'by-date': string };
   };
+  // Add the meetings store
+  meetings: {
+    key: string;
+    value: Meeting;
+    indexes: { 'by-caseId': string; 'by-date': string }; // Index by caseId and date
+  };
   // Add other stores as needed
-}
-
-export interface TimelineEvent {
-  id: string;
-  caseId: string;
-  type: 'meeting' | 'form' | 'clientDetails';
-  action: 'created' | 'updated' | 'completed';
-  description: string;
-  date: string; // ISO timestamp
 }
